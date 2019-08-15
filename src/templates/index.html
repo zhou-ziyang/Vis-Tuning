@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="../static/style.css" rel="stylesheet" type="text/css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/d3js/5.9.0/d3.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!--    <script src="../static/sentence.js"></script>-->
+</head>
+<body>
+	<div id="page" class="page">
+		<div id="left_sidebar" class="left sidebar main">
+			<div class="logo">Visual LSTM</div>
+			<div class="tuning">
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Units:</div>
+						<div id="units_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="0" max="256" value="64" class="slider" step="4" id="units_range">
+					</div>
+				</div>
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Dropout:</div>
+						<div id="dropout_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="0" max="1" value="0.5" class="slider" step="0.1" id="dropout_range">
+					</div>
+				</div>
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Recurrent Dropout:</div>
+						<div id="recurrent_dropout_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="0" max="1" value="0.5" class="slider" step="0.1" id="recurrent_dropout_range">
+					</div>
+				</div>
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Batch Size:</div>
+						<div id="batch_size_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="0" max="512" value="64" class="slider" step="4" id="batch_size_range">
+					</div>
+				</div>
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Epoches:</div>
+						<div id="epochs_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="1" max="100" value="10" class="slider" step="1" id="epochs_range">
+					</div>
+				</div>
+			</div>
+			<div class="button_panel">
+				<button id="start" class="button button_start button_control" onclick="openPanel()">
+<!--					<div id="triangle" class="arrow-right center"></div>-->
+					Start
+				</button>
+				<button id="stop" class="button button_stop button_control">
+<!--					<div id="square" class="square center"></div>-->
+					Stop
+				</button>
+			</div>
+		</div>
+		<div id="container_main" class="container_main main">
+			<div id="window" class="full_width window">
+				<div id="result" class="result full_width">
+<!--
+					<div class="sentence full_width">
+						<div class="aspect_box left main">
+							<div class="aspect"><a>👍</a></div>
+						</div>
+						<div class="words main">
+							<div class="word_panel full_width">
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<span class="word">Hello</span>
+								<div class="word">Hello</div>
+							</div>
+						</div>
+					</div>
+-->
+				</div>
+			</div>
+			<div id="bar" class="full_width bar">
+                <div class="bar_content">
+                    <div class="switches">
+        				<div id="open_button" class="switch" onclick="openPanel()">
+                            <span class="switch_label">^</span>
+                        </div>
+                        <div id="close_button" class="switch invisible" onclick="closePanel()">
+                            <div class="switch_label">×</div>
+                        </div>
+                    </div>
+                    <div id="bar_main" class="bar_main">
+                        <div id="metrics" class="metrics">
+                            <div id="linechart_box" class="linechart_box">
+                                <div id="accuracy_chart" class="linechart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+			</div>
+			<!--
+			<div id="left" class="half left">
+				<div class="center_box">
+					<div>
+						<textarea type="text" class="conf_input" id="conf"></textarea>
+					</div>
+					<div id="layer_addition_panel" style="visibility: hidden">
+						<div id="layer_panel"></div>
+						<div id="add_layer_button"><button class="bottom">+</button></div>
+					</div>
+				</div>
+			</div>
+
+			<div id="right" class="half left center_box">
+				<div class="center_box">
+					<div class="linechart"></div>
+				</div>
+			</div>
+			-->
+		</div>
+	</div>
+
+    <script>
+        // 图表的宽度和高度
+        let parentWidth = $('#linechart_box').width();
+
+        const width = parentWidth;
+        const height = width / 2;
+        const range = 15;
+
+        // 预留给轴线的距离
+        const padding = {
+            top: 20,
+            right: 20,
+            bottom: 40,
+            left: 40
+        };
+
+        let data = [];
+        let xs = d3.range(data.length);
+        let dataset = d3.range(data.length).map(function(d) {
+            return [d, data[d]];
+        });
+
+        let xScale = d3.scaleLinear()
+            .domain([0, range-1])
+            .range([0, width - padding.left - padding.right]);
+
+        let yScale = d3.scaleLinear()
+            .domain([0, 1])
+            .range([height - padding.top - padding.bottom, 0]);
+
+        let svg = d3.select(".linechart")
+            .append('svg')
+            .attr('width', width + 'px')
+            .attr('height', height + 'px')
+            .call(auto_resize);
+
+        let xAxis = d3.axisBottom()
+            .scale(xScale);
+
+        let yAxis = d3.axisLeft()
+            .scale(yScale);
+
+        svg.append('g')
+            .attr('class', 'axis')
+            .attr('transform', 'translate(' + padding.left + ',' + (height - padding.bottom) + ')')
+            .call(xAxis);
+
+        svg.append('g')
+            .attr('class', 'axis')
+            .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+            .call(yAxis);
+
+        function appendData(value, chart) {
+            if (data.length === range)
+                data.shift();
+            data.push(value);
+            dataset = d3.range(data.length).map(function(d) {
+                return [d, data[d]];
+            });
+
+            /*var min = d3.min(dataset, function(d) {
+                return d[1];
+            });
+            var max = d3.max(dataset, function(d) {
+                return d[1];
+            });*/
+
+            svg.selectAll("." + chart).remove();
+
+            let linePath = d3.line()
+                .x(function(d) {
+                    return xScale(d[0]);
+                })
+                .y(function(d) {
+                    return yScale(d[1]);
+                })
+                .curve(d3.curveCardinal);
+
+            let areaPath = d3.area()
+                .x(function(d) {
+                    return xScale(d[0]);
+                })
+                .y0(height-padding.bottom-padding.top)
+                .y1(function(d) {
+                    return yScale(d[1]);
+                })
+                .curve(d3.curveCardinal);
+
+            svg.append('g')
+                .append('path')
+                .attr('class', 'line ' + chart)
+                .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+                .attr('d', linePath(dataset))
+                .attr('fill', 'none')
+                .attr('stroke-width', 2)
+                .attr('stroke', 'green');
+
+            svg.append('g')
+                .append('path')
+                .attr('class', 'area ' + chart)
+                .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+                .attr('d', areaPath(dataset))
+                .attr('fill', 'none')
+                .attr('stroke-width', 2)
+                .attr('stroke', 'green');
+
+            /*svg.append('g')
+                .selectAll('circle')
+                .data(dataset)
+                .enter()
+                .append('circle')
+                .attr('r', 3)
+                .attr('transform', function(d) {
+                    return 'translate(' + (xScale(d[0]) + padding.left) + ',' + (yScale(d[1]) + padding.top) + ')'
+                })
+                .attr('class', 'dot ' + chart)*/
+        }
+
+        // let chart = d3.select("#accuracy_chart");
+        // d3.select(window).on("resize", function() {
+        //     var targetWidth = chart.node().getBoundingClientRect().width;
+        //     chart.attr("width", targetWidth);
+        //     chart.attr("height", targetWidth / 2);
+        // });
+
+            /*appendData(0.454, "chart1");
+            appendData(0.567, "chart1");
+            appendData(0.876, "chart1");
+            appendData(0.342, "chart1");
+            appendData(0.865, "chart1");
+            appendData(0.235, "chart1");
+            appendData(0.543, "chart1");*/
+
+        function auto_resize(svg) {
+            // get container + svg aspect ratio
+            var container = d3.select(svg.node().parentNode),
+                width = parseInt(svg.style("width")),
+                height = parseInt(svg.style("height")),
+                aspect = width / height;
+
+            // add viewBox and preserveAspectRatio properties,
+            // and call resize so that svg resizes on inital page load
+            svg.attr("viewBox", "0 0 " + width + " " + height)
+                .attr("perserveAspectRatio", "xMinYMid")
+                .call(resize);
+
+            // to register multiple listeners for same event type, 
+            // you need to add namespace, i.e., 'click.foo'
+            // necessary if you call invoke this function for multiple svgs
+            // api docs: https://github.com/mbostock/d3/wiki/Selections#on
+            d3.select(window).on("resize." + container.attr("id"), resize);
+
+            // get width of container and resize svg to fit it
+            function resize() {
+                var targetWidth = parseInt(container.style("width"));
+                svg.attr("width", targetWidth);
+                svg.attr("height", Math.round(targetWidth / aspect));
+            }
+        }
+    </script>
+    <script>
+        //Push-up
+        var source = new EventSource("{{ url_for('sse.stream') }}");
+        source.addEventListener('greeting', function(event) {
+            JSON.parse(event.data, function(k, v) {
+                if (k === 'message')
+                    JSON.parse(v, function(k, v) {
+                        //if (k)
+                            //document.getElementById("TestDIV").innerHTML += "<br>k: " + k + " v: " + v;
+                        if (k === "acc")
+                            appendData(v, 'chart1');
+                        return 0;
+                    });
+                return 0;
+            });
+        }, false);
+        source.addEventListener('error', function(event) {
+            alert("Failed to communicate with the server");
+        }, false);
+    </script>
+    <script>
+        hyperparameters = ["units", "dropout", "recurrent_dropout", "batch_size", "epochs"];
+        for (let hp of hyperparameters) {
+            let range = document.getElementById(hp + "_range");
+            let value = document.getElementById(hp + "_value");
+            value.innerHTML = range.value;
+            range.oninput = function() {
+                value.innerHTML = this.value;
+            }
+        }
+    </script>
+    <script>
+        $(function() {
+            $("#start").bind('click', function() {
+                $.getJSON('/start', function() {
+
+                });
+                return false;
+            });
+        });
+
+        // const conf = {
+        //     "layer1": {"layer_type": "Conv2D", "args": {"filters": 32, "kernel_size": [3, 3], "activation": "relu", "input_shape": [28, 28, 1]}},
+        //     "layer2": {"layer_type": "Conv2D", "args": {"filters": 64, "kernel_size": [3, 3], "activation": "relu"}},
+        //     "layer3": {"layer_type": "MaxPooling2D", "args": {"pool_size": [2, 2]}},
+        //     "layer4": {"layer_type": "Dropout", "args": {"rate": 0.25}},
+        //     "layer5": {"layer_type": "Flatten", "args": {}},
+        //     "layer6": {"layer_type": "Dense", "args": {"units": 128, "activation": "relu"}},
+        //     "layer7": {"layer_type": "Dropout", "args": {"rate": 0.25}},
+        //     "layer8": {"layer_type": "Dense", "args": {"units": 10, "activation": "softmax"}}
+        // };
+
+        // console.log(conf);
+
+        // document.getElementById("conf").value = JSON.stringify(conf);
+
+        $(function() {
+            $("#start").click(function(){
+
+                // console.log(document.getElementById("conf").innerText);
+
+                let conf = {};
+
+                for (let hp of hyperparameters) {
+                    conf[hp] = parseFloat(document.getElementById(hp + "_range").value);
+                }
+
+                $.post({url: "/start", data: JSON.stringify(conf), success: function() {
+
+                }});
+                return false;
+            });
+        });
+
+        $(function() {
+            $("#stop").bind('click', function() {
+                $.getJSON('/stop', function() {
+
+                });
+                return false;
+            });
+        });
+    </script>
+    <!-- <script src="../static/layers.js"></script> -->
+    <script>
+		function addSentence(asp, sen) {
+			let result = document.getElementById("result");
+
+			let sentence = document.createElement("div");
+			sentence.setAttribute("class", "sentence full_width");
+			result.appendChild(sentence);
+
+			let aspect_box = document.createElement("div");
+			aspect_box.setAttribute("class", "aspect_box left main");
+			sentence.appendChild(aspect_box);
+
+			let words = document.createElement("div");
+			words.setAttribute("class", "words main");
+			sentence.appendChild(words);
+
+			let aspect = document.createElement("div");
+			aspect.setAttribute("class", "aspect");
+			if (asp == "1") {
+				aspect.innerHTML = "<a>👍</a>";
+			} else if (asp == "0") {
+				aspect.innerHTML = "<a>👎</a>";
+			}
+			aspect_box.appendChild(aspect);
+
+			let word_panel = document.createElement("div");
+			word_panel.setAttribute("class", "word_panel");
+			words.appendChild(word_panel);
+
+			let word_list = sen.split(" ")
+			for (let w of word_list) {
+				let word = document.createElement("div");
+				word.setAttribute("class", "word");
+				word.innerText = w;
+				word_panel.appendChild(word);
+			}
+		}
+				
+		let sen = [];
+
+		sen[0] = "<START> i went to this movie at a cast and crew show cause my friend whom is a producer on the movie invited me forget what you have seen in the commercials forget what you have heard go see this film for yourself i was more than surprised by it in a world of the grinch <UNK> angels the 6th day <UNK> here comes a film that is worth your hard earned bucks glorious scenes wonderful <UNK> and a cast you want to eat with your heart i found this to be one of this years most orchestrated powerhouse films and with reason robert deniro deserves an oscar nod if you could give an oscar to everyone involved as a package this would be the film";
+
+		sen[1] = "<START> to be honest i had no idea what this movie was about when i started it that's how i watch movies whenever possible no <UNK> i thought this was going to be a movie about stoners in the woods or something i was wrong kinda br br loaded was kind of boring at first but once it started to get going it really hooked me i know the feeling of being sucked into something dangerous where you feel helpless but to do things that you do not want to do br br another user commented on how this movie was silly and implausible but i beg to differ these kinds of things do happen i'm sorry but not everyone lives in a dream world where nothing bad can happen and crazy situations are implausible really sorry but the reality of the world is that they do happen the creator of this movie as well as the actors did a great job of portraying how things can just go bad and how people can make really bad choices sometimes things turn out good sometimes they turn out bad and such is life br br i highly recommend this movie"
+
+		for (let s of sen) {
+			addSentence("1", s);
+		}
+	</script>
+    <script type="text/javascript">
+        function openPanel() {
+            document.getElementById("bar").setAttribute("class", "full_width bar_open");
+            document.getElementById("open_button").setAttribute("class", "switch invisible");
+            document.getElementById("close_button").setAttribute("class", "switch");
+            // document.getElementById("linechart_box").setAttribute("class", "linechart_center");
+        }
+
+        function closePanel() {
+            document.getElementById("bar").setAttribute("class", "full_width bar");
+            document.getElementById("open_button").setAttribute("class", "switch");
+            document.getElementById("close_button").setAttribute("class", "switch invisible");
+            // document.getElementById("linechart_box").setAttribute("class", "linechart");
+        }
+    </script>
+</body>
+</html>
