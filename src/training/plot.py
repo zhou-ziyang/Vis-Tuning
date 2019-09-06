@@ -16,10 +16,10 @@ with codecs.open('model.vec', 'r', 'utf-8') as f_in:
     for pair in pairs:
         try:
             a, b = pair
-            vocabulary.append(a)
-            wv.append(b)
         except Exception:
             pass
+        vocabulary.append(a)
+        wv.append(b)
 
 # Populating the two lists. Need to convert vector values from string to numpy array
 
@@ -34,9 +34,14 @@ U, s, Vh = np.linalg.svd(vecs, full_matrices=False)
 
 for i in range(len(words)):
     fig = plt.gcf()
-    fig.set_size_inches(100, 100)
-    plt.text(U[i, 0], U[i, 1], "+")
-    plt.xlim((-0.015, 0.015))
-    plt.ylim((-0.035, 0.035))
+    fig.set_size_inches(80, 50)
+    # plt.text(U[i, 0], U[i, 1], words[i])
+    if words[i] == "__label__positive":
+        plt.plot(U[i, 0], U[i, 1], "ro")
+    else:
+        plt.plot(U[i, 0], U[i, 1], "go")
+    plt.xlim((-0.02, 0.02))
+    plt.ylim((0, 0.013))
+    # plt.ylim((-0.04, 0.04))
 
-plt.savefig('viz+.png')
+plt.savefig('viz_sent.png')
