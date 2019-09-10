@@ -1,7 +1,7 @@
 import fasttext
 
-model = fasttext.train_supervised(input="imdb.train", wordNgrams=1, epoch=5)
-model.save_model("model.bin")
+model = fasttext.train_supervised(input="IMDB_Crawled/imdb.train", wordNgrams=1, epoch=15)
+model.save_model("IMDB_Crawled/model.bin")
 
 
 def print_results(N, p, r):
@@ -9,8 +9,7 @@ def print_results(N, p, r):
     print("P@{}\t{:.3f}".format(1, p))
     print("R@{}\t{:.3f}".format(1, r))
 
-
-print_results(*model.test('imdb2.valid'))
+print_results(*model.test('IMDB_Crawled/imdb.valid', 1))
 
 comments = []
 # positive
@@ -31,12 +30,12 @@ comments.append("<START> this film requires a lot of patience because it focuses
                 "this is worth the time br br unfortunately it's very difficult to find in video stores you may have "
                 "to buy it off the internet")
 
-print(model.predict(comments[0]))
+# print(model.predict(comments[0]))
 
-vector = model.get_sentence_vector(comments[0])
-print(vector)
+# vector = model.get_sentence_vector(comments[0])
+# print(vector)
 
-file = open("model.vec", "w")
+file = open("IMDB_Crawled/model.vec", "w")
 file.write(str(len(model.get_words())) + " " + str(model.get_dimension()) + "\n")
 for word in model.get_words():
     if word is not " ":
