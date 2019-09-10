@@ -15,7 +15,7 @@ dev_set = []
 test_set = []
 for i in range(10):
     files_ID.append(open("IMDB_Crawled/data2/imdb_id_" + str(i + 1) + ".txt", "w"))
-    files_Review.append(open("IMDB_Crawled/data2/imdb_review" + str(i + 1) + ".txt", "w"))
+    files_Review.append(open("IMDB_Crawled/data2/imdb_review_" + str(i + 1) + ".txt", "w"))
     review_count.append(0)
 
 with open("movie_metadata.csv", "r", encoding="utf-8") as f:
