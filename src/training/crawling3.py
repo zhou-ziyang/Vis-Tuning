@@ -27,27 +27,23 @@ with open("movie_metadata.csv", "r", encoding="utf-8") as f:
         movie_id = re.search('\\w*(?=\\/\\?)', url)[0]
         count += 1
         print("Movie " + str(count) + ": " + movie_id)
-        review_url = url.replace("?ref_=fn_tt_tt_1", "reviews?sort=submissionDate&dir=desc&ratingFilter=0")
-        response = requests.get(review_url)
-        page_soup = BeautifulSoup(response.text, 'lxml')
-        review_list = page_soup.find_all("div", class_="lister-item-content")
-        for review_box in review_list:
-            try:
-                rating = review_box.select('div:nth-of-type(1) > span:nth-of-type(1) > span:nth-of-type(1)')[0].text
-                rating_score = int(rating)
-                index = rating_score - 1
+        for i in range(10):
+            rating = i + 1
+            review_url = url.replace("?ref_=fn_tt_tt_1", "reviews?sort=helpfulnessScore&dir=desc&ratingFilter=" +
+                                     str(rating))
+            response = requests.get(review_url)
+            page_soup = BeautifulSoup(response.text, 'lxml')
+            review_list = page_soup.find_all("div", class_="lister-item-content")
+            for review_box in review_list:
                 review = review_box.find("div", class_=["text", "show-more__control"]).text
-            except Exception:
-                pass
-            else:
-                files_ID[index].write(movie_id + "\n")
-                files_Review[index].write("__label__" + rating + " " + review + "\n")
-                review_count[index] += 1
+                files_ID[i].write(movie_id + "\n")
+                files_Review[i].write("__label__" + str(rating) + " " + review + "\n")
+                review_count[i] += 1
                 review_sum += 1
                 if review_sum >= number_of_reviews:
                     break
-        print(review_count)
-        print("Sum: " + str(review_sum))
+            print(review_count)
+            print("Sum: " + str(review_sum))
 
 for i in range(10):
     files_ID[i].close()
