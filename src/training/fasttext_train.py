@@ -1,6 +1,7 @@
 import fasttext
 
-model = fasttext.train_supervised(input="IMDB_Crawled/imdb.train", wordNgrams=1, epoch=15)
+
+model = fasttext.train_supervised(input="IMDB_Crawled/imdb.train", wordNgrams=1, epoch=35)
 model.save_model("IMDB_Crawled/model.bin")
 
 
@@ -9,7 +10,7 @@ def print_results(N, p, r):
     print("P@{}\t{:.3f}".format(1, p))
     print("R@{}\t{:.3f}".format(1, r))
 
-print_results(*model.test('IMDB_Crawled/imdb.valid', 1))
+print_results(*model.test('IMDB_Crawled/imdb.dev', 1))
 
 comments = []
 # positive

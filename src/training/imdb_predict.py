@@ -1,16 +1,23 @@
 import codecs
+import math
+import timeit
+
 import matplotlib.pyplot as plt
 import fasttext
 import numpy as np
 import scipy as sp
 from sklearn.metrics import r2_score
 
+from training.cm_plot import cm_plot
+
 model = fasttext.load_model('IMDB_Crawled/model.bin')
+
 
 def print_results(N, p, r):
     print("N\t" + str(N))
     print("P@{}\t{:.3f}".format(1, p))
     print("R@{}\t{:.3f}".format(1, r))
+
 
 # print_results(*model.test('IMDB_Rating_Data/imdb_rating.test', 1))
 
@@ -47,15 +54,13 @@ comments.append("\"Hardbodies 2\" is harmless, aimless and plot less. I would ad
                 "worst of its kind by any means, but if you only want to see one of these movies, the original is the "
                 "one to get. (*1/2)")
 
-
-
 # print(model.predict(comments[0], 2))
 
 
 predictions = []
 truths = []
 
-with open('IMDB_Crawled/imdb.valid', 'r') as f_in:
+with open('IMDB_Crawled/imdb.dev', 'r') as f_in:
     # vocabulary, wv = zip(*[line.strip().split(' ', maxsplit=1) for line in f_in])
     pairs = [line.split(' ', maxsplit=1) for line in f_in]
     file = open("IMDB_Crawled/result", "w")
@@ -89,8 +94,10 @@ with open('IMDB_Crawled/imdb.valid', 'r') as f_in:
 accuracy = map('dist', zip(predictions, truths))
 # print(np.array(list(map(lambda x, y: abs(x - y), predictions, truths))).mean())
 # print(*zip(truths, predictions))
-print(np.mean((np.array(predictions) - np.array(truths)) ** 2))
+# print(np.mean((np.array(predictions) - np.array(truths)) ** 2))
 print(r2_score(truths, predictions))
+
+cm_plot(truths, predictions).show()
 
 fig = plt.figure(figsize=(8, 8))
 
@@ -102,5 +109,3 @@ ax2 = fig.add_subplot(2, 1, 2)
 ax2.hist(predictions, bins=11, range=(0, 11), color='g')
 
 plt.show()
-
-
