@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Vis-Tuning</title>
+<link href="../static/styles/style.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body>
+	<div class="container game_container">
+		<div class="center game_content">
+			<div class="question">How do you think did the commentor rate this movie?</div>
+			<div class="stars">
+				<span class="star fa fa-star checked"></span>
+				<span class="star fa fa-star checked"></span>
+				<span class="star fa fa-star checked"></span>
+				<span class="star fa fa-star"></span>
+				<span class="star fa fa-star"></span>
+				<span class="star fa fa-star"></span>
+				<span class="star fa fa-star"></span>
+				<span class="star fa fa-star"></span>
+				<span class="star fa fa-star"></span>
+				<span class="star fa fa-star"></span>
+			</div>
+			<div id="review_box" class="review_box"></div>
+		</div>
+	</div>
+	<script>
+		function addSentence(sen) {
+			let result = document.getElementById("review_box");
+
+			let sentence = document.createElement("div");
+			sentence.setAttribute("class", "sentence full_width");
+			result.appendChild(sentence);
+
+			let words = document.createElement("div");
+			words.setAttribute("class", "words main");
+			sentence.appendChild(words);
+
+			let word_panel = document.createElement("div");
+			word_panel.setAttribute("class", "word_panel");
+			words.appendChild(word_panel);
+
+			let word_list = sen.split(" ")
+			for (let w of word_list) {
+				let word = document.createElement("div");
+				word.setAttribute("class", "word");
+				word.innerText = w;
+				word_panel.appendChild(word);
+			}
+		}
+				
+		let sen = "bad acing bad writing just bad. this movie is long, boring, pointless, i could go on. i would rather watch bees mating than this movie. at least there would be some emotion. And don't even get me started on josh hartnett. yuck. not even his uni brow could detract from his bad acting. the only \"good\" (im using the word very loosely) thing about this movie was when josh hartnett said the line \"i found your powder case\" like 3 times in a very deep cheesy voice that was so bad i just had to laugh. i mean, come on is Hollywood really this desperate that they have to make a movie about.... i don't even no what it was about thats how sh**y it was. if you want to see something exciting, i suggest you watch paint dry rather than endure this \"movie\" (again i use this term loosely).";
+
+		addSentence(sen);
+	</script>
+</body>
+</html>

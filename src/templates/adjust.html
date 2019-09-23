@@ -1,0 +1,674 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Vis-Tuning</title>
+	<link href="../static/styles/style.css" rel="stylesheet" type="text/css"/>
+	<script src="https://ajax.googleapis.com/ajax/libs/d3js/5.9.0/d3.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https:cdn.plot.ly/plotly-latest.min.js"></script>
+	<!--	<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>-->
+	<script src="../static/canvasjs.js"></script>
+	<!--	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>-->
+	<!--	<link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet" type="text/css"/>-->
+	<!--	<script src="../static/echarts.min.js"></script>-->
+	<!--	<script src="../static/zingchart/zingchart.min.js"></script>-->
+	<!--	<script src="https://cdn.anychart.com/releases/8.7.0/js/anychart-base.min.js"></script>-->
+	<!--	<script src="../static/anychart.js"></script>-->
+</head>
+
+<body class="unscrollable">
+<div id="page" class="page">
+	<div id="left_sidebar" class="left sidebar main">
+		<div class="left_title">Your guess:</div>
+		<div class="stars">
+			<span class="star fa fa-star checked"></span>
+			<span class="star fa fa-star checked"></span>
+			<span class="star fa fa-star checked"></span>
+			<span class="star fa fa-star"></span>
+			<span class="star fa fa-star"></span>
+			<span class="star fa fa-star"></span>
+			<span class="star fa fa-star"></span>
+			<span class="star fa fa-star"></span>
+			<span class="star fa fa-star"></span>
+			<span class="star fa fa-star"></span>
+		</div>
+		<div class="left_title">The machine suggests: </div>
+		<div class="stars">
+			<span class="star fa fa-star checked"></span>
+			<span class="star fa fa-star checked"></span>
+			<span class="star fa fa-star checked"></span>
+			<span class="star fa fa-star checked"></span>
+			<span class="star fa fa-star"></span>
+			<span class="star fa fa-star"></span>
+			<span class="star fa fa-star"></span>
+			<span class="star fa fa-star"></span>
+			<span class="star fa fa-star"></span>
+			<span class="star fa fa-star"></span>
+		</div>
+		<div class="review_box_adjust">
+			<div id="review_box" class="review_box"></div>
+		</div>
+	</div>
+	<div id="container_main" class="container_main main">
+		<div id="window" class="full_width window">
+			<!--			<div id="myChart" class="chart&#45;&#45;container"></div>-->
+			<!--				<canvas id="result" class="result full_width"></canvas>-->
+		</div>
+		<div class="cover_lice:nse"></div>
+	</div>
+</div>
+
+<script>
+	function addSentence(sen) {
+		let result = document.getElementById("review_box");
+
+		let sentence = document.createElement("div");
+		sentence.setAttribute("class", "sentence full_width");
+		result.appendChild(sentence);
+
+		let words = document.createElement("div");
+		words.setAttribute("class", "words main");
+		sentence.appendChild(words);
+
+		let word_panel = document.createElement("div");
+		word_panel.setAttribute("class", "word_panel");
+		words.appendChild(word_panel);
+
+		let word_list = sen.split(" ");
+		for (let w of word_list) {
+			let word = document.createElement("div");
+			word.setAttribute("class", "word");
+			word.innerText = w;
+			word_panel.appendChild(word);
+		}
+	}
+
+	let sen = "bad acing bad writing just bad. this movie is long, boring, pointless, i could go on. i would rather watch bees mating than this movie. at least there would be some emotion. And don't even get me started on josh hartnett. yuck. not even his uni brow could detract from his bad acting. the only \"good\" (im using the word very loosely) thing about this movie was when josh hartnett said the line \"i found your powder case\" like 3 times in a very deep cheesy voice that was so bad i just had to laugh. i mean, come on is Hollywood really this desperate that they have to make a movie about.... i don't even no what it was about thats how sh**y it was. if you want to see something exciting, i suggest you watch paint dry rather than endure this \"movie\" (again i use this term loosely).";
+
+	addSentence(sen);
+</script>
+<script>
+	window.onload=function() {
+		let classes = 10;
+
+		let colorList = ['#A50026', '#DC3A2B', '#F67E4B', '#FDC272', '#FEEFA5', '#E3F399', '#B1DD71', '#6DC063', '#219B51', '#006837'];
+		// let colorList = ['#C23843', '#C24C43', '#C25E43', '#C26D43', '#C27543', '#C28743', '#C29343', '#C2A943', '#C2C543', '#C2D443'];
+		let map = [1, 3, 5, 7, 9, 2, 4, 6, 8, 10].reverse();
+		let scatter_data = new Array(classes + 1);
+		let xValues = [];
+		let yValues = [];
+		let zValues = [];
+
+		const acc = 100;
+
+		let x_max = Number.MIN_VALUE;
+		let x_min = Number.MAX_VALUE;
+		let y_max = Number.MIN_VALUE;
+		let y_min = Number.MAX_VALUE;
+
+		function linspace(start, stop, step) {
+			let ret = [];
+			let i = start;
+			while (Math.round(i * acc) <= Math.round(stop * acc)) {
+				ret.push(i);
+				i += step;
+			}
+			return ret;
+		}
+
+		for (let i = 1; i <= classes; i++) {
+			scatter_data[i] = {
+				x: [],
+				y: [],
+				text: [],
+				// xaxis: 'x1',
+				// yaxis: 'y1',
+				mode: 'markers',
+				hoverinfo: 'text',
+				type: 'scatter',
+				name: (map[i - 1]).toString() + " stars",
+				opacity: 0.9,
+				marker: {
+					sizemin: 30,
+					sizemax: 30,
+					size: 3,
+					color: colorList[map[i - 1] - 1]
+				}
+			};
+		}
+
+		let layout = {
+			xaxis: {
+				// range: [-0.05, 0.05],
+				autorange: true,
+				showspikes: false
+			},
+			yaxis: {
+				// range: [-0.04, 0.04],
+				autorange: true,
+				showspikes: false
+			},
+			xaxis2: {
+				matches: 'x',
+			},
+			title: '',
+			dragmode: "pan",
+			hovermode: "closest",
+			paper_bgcolor: 'transparent',
+			plot_bgcolor: 'transparent'
+		};
+
+		d3.csv("sent_plot.csv").then(function (data) {
+			x_start = 0;
+			x_end = 0;
+			y_start = 0;
+			y_end = 0;
+
+			data.forEach(function (d) {
+				let target = scatter_data[map.indexOf(parseInt(d.pred)) + 1];
+				target.x.push(parseFloat(d.x));
+				target.y.push(parseFloat(d.y));
+				target.text.push(d.pred);
+				x_max = Math.max(x_max, d.x);
+				x_min = Math.min(x_min, d.x);
+				y_max = Math.max(y_max, d.y);
+				y_min = Math.min(y_min, d.y);
+			});
+			x_start = Math.round(x_min * acc) / acc;
+			x_end = Math.round(x_max * acc) / acc;
+			xValues = linspace(x_start, x_end, 1 / acc);
+
+			y_start = Math.round(y_min * acc) / acc;
+			y_end = Math.round(y_max * acc) / acc;
+			yValues = linspace(y_start, y_end, 1 / acc);
+
+			zValues = new Array(yValues.length);
+			for (let i = 0; i < yValues.length; i++) {
+				zValues[i] = new Array(xValues.length);
+				for (let j = 0; j < xValues.length; j++)
+					zValues[i][j] = null;
+			}
+
+			// console.log(x_start, x_end, y_start, y_end);
+			// console.log(xValues, yValues, zValues);
+			// console.log(xValues.length, yValues.length);
+
+			return data;
+		}).then(function (data) {
+			data.forEach(function (d) {
+				x_coor = Math.round((parseFloat(d.x) - x_start) * acc);
+				y_coor = Math.round((parseFloat(d.y) - y_start) * acc);
+				zValues[y_coor][x_coor] = parseInt(d.pred);
+			});
+			// console.log(xValues, yValues, zValues);
+		}).then(function () {
+			scatter_data[0] = {
+				x: xValues,
+				y: yValues,
+				z: zValues,
+				connectgaps: true,
+				opacity: 0.9,
+				type: 'heatmap',
+				zsmooth: 'best',
+				// xaxis: 'x2',
+				// yaxis: 'y2',
+				colorscale: [
+					// ['0.0', '#8A0002'],
+					['0.0', '#A50026'],
+					['0.1111', '#DC3A2B'],
+					['0.2222', '#F67E4B'],
+					['0.3333', '#FDC272'],
+					['0.4444', '#FEEFA5'],
+					['0.5555', '#E3F399'],
+					['0.6666', '#B1DD71'],
+					['0.7777', '#6DC063'],
+					['0.8888', '#219B51'],
+					['1.0', '#006837']
+				]
+			};
+
+			let config = {
+				scrollZoom: true
+			};
+
+			Plotly.newPlot('window', scatter_data, layout, config);
+		});
+
+		var data2 = [{
+		  z: [[10, 10.625, 12.5, 15.625, 20],
+			 [5.625, 6.25, 8.125, 11.25, 15.625],
+			 [2.5, 3.125, 5., 8.125, 12.5],
+			 [0.625, 1.25, 3.125, 6.25, 10.625],
+			 [0, 0.625, 2.5, 5.625, 10]],
+		  type: 'heatmap',
+		  colorscale: 'Jet',
+		}];
+
+		var layout2 = {
+		  title: 'Colorscale for Contour Plot'
+		};
+
+		// Plotly.newPlot('window', [test_trace], layout2, {scrollZoom: true});
+	}
+</script>
+<!--<script>
+    points = []
+    var ctx = document.getElementById('result');
+    window.onload = function () {
+        d3.csv("sent_plot.csv").then(function(data) {
+            data.forEach(function(d) {
+                points.push({
+                    'label': parseInt(d.label),
+                    'x':parseFloat(d.x),
+                    'y':parseFloat(d.y)
+                });
+            });
+        }).then(function() {
+            var scatterChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Scatter Dataset',
+                        data: points
+                    }]
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: 'linear',
+                            position: 'bottom',
+//								display: false,
+                            ticks: {
+                                max: 0.04,
+                                min: -0.04,
+                                stepSize: 0.01
+                            }
+                        }],
+                        yAxes: [{
+                            type: 'linear',
+                            position: 'bottom',
+//								display: false,
+                            ticks: {
+                                max: 0,
+                                min: -0.015,
+                                stepSize: 0.0025
+                            }
+                        }]
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        });
+    }
+</script>-->
+<!--<script>
+    points = [];
+    let chart = null;
+    let colorList = ['#A50026','#DC3A2B','#F67E4B','#FDC272','#FEEFA5','#E3F399','#B1DD71','#6DC063','#219B51','#006837'];
+    let point_data = new Array(10);
+    for (let i = 1; i <= 10; i++) {
+//		for (let i of [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]) {
+        point_data[i - 1] = {
+            type: "scatter",
+            color: colorList[i - 1],
+            toolTipContent: "<b>Area: </b>{x} sq.ft<br/><b>Price: </b>${y}k",
+            dataPoints: []
+        };
+    }
+//		window.onload = function () {
+        d3.csv("sent_plot.csv").then(function(data) {
+            data.forEach(function(d) {
+                point_data[parseInt(d.label) - 1].dataPoints.push({
+                    'x':parseFloat(d.x),
+                    'y':parseFloat(d.y),
+                    'markerSize': 3
+                });
+            });
+        }).then(function() {
+            chart = new CanvasJS.Chart("window", {
+                // zoomEnabled: true,
+				// zoomType: "xy",
+                legend: {
+                horizontalAlign: "right",
+                verticalAlign: "center"
+                },
+                theme: "light2",
+                backgroundColor: "#F5F5F5",
+                rangeChanged: function(e){
+                    if (!e.chart.options.viewportMinStack){
+                        e.chart.options.viewportMinStack = [];
+                        e.chart.options.viewportMaxStack = [];
+                    }
+                    if(e.trigger === "zoom"){
+                        e.chart.options.viewportMinStack.push(e.axisX[0].viewportMinimum);
+                        e.chart.options.viewportMaxStack.push(e.axisX[0].viewportMaximum);
+                        document.getElementById("button").style.visibility = "visible";
+                    }
+                    if(e.trigger === "reset"){
+                        axisX.viewportMinimum = null;
+                        axisX.viewportMaximum = null;
+                        e.chart.render();
+                        e.chart.options.viewportMinStack=[];
+                        e.chart.options.viewportMinStack=[];
+                        document.getElementById("button").style.visibility = "hidden";
+                    }
+                },
+//					animationEnabled: true,
+// 					title:{
+// 						text: "Real Estate Rates"
+// 					},
+                axisX: {
+                    lineThickness:0,
+                    tickThickness:0,
+                    valueFormatString:" ",
+//						title:"Area (in sq. ft)",
+//						minimum: 790,
+//						maximum: 2260,
+                       labelFontSize: 12,
+                    labelFontWeight: 100,
+                    gridThickness: 1,
+                    tickLength: 0,
+                    includeZero: false,
+                    margin: 0
+                },
+                axisY:{
+                    lineThickness:0,
+                    tickThickness:0,
+                    valueFormatString:" ",
+                    show: false,
+//						title: "Price (in USD)",
+//						valueFormatString: "$#,##0k",
+                       labelFontSize: 12,
+                    labelFontWeight: 100,
+                    gridThickness: 1,
+                    tickLength: 0,
+                    includeZero: false,
+                    margin: 0
+                },
+                data: point_data
+            });
+
+            chart.render();
+
+            let chartContainer = document.getElementsByClassName("canvasjs-chart-canvas")[1];
+            if (chartContainer.addEventListener) {
+                // IE9, Chrome, Safari, Opera
+                chartContainer.addEventListener("mousewheel", (e)=>MouseWheelHandler(e), false);
+                // Firefox
+                chartContainer.addEventListener("DOMMouseScroll", (e)=>MouseWheelHandler(e), false);
+            }
+
+            function MouseWheelHandler(e) {
+                let dir = (e.wheelDelta || -e.detail) > 0 ? -1 : +1;
+                let a = chart._axes.find(aa => {return aa.type === 'axisX'});
+                let delta_a = dir * (a.viewportMaximum - a.viewportMinimum) / 10;
+                a.sessionVariables.newViewportMinimum = a.viewportMinimum - delta_a;
+                a.sessionVariables.newViewportMaximum = a.viewportMaximum + delta_a;
+                let b = chart._axes.find(bb => {return bb.type === 'axisY'});
+                let delta_b = dir * (b.viewportMaximum - b.viewportMinimum) / 10;
+                b.sessionVariables.newViewportMinimum = b.viewportMinimum - delta_b;
+                b.sessionVariables.newViewportMaximum = b.viewportMaximum + delta_b;
+                chart.render();
+
+                // e.preventDefault();
+                //
+                // if(e.clientX < chart.plotArea.x1 || e.clientX > chart.plotArea.x2 || e.clientY < chart.plotArea.y1 || e.clientY > chart.plotArea.y2)
+                // 	return;
+                //
+                // let axisX = chart.axisX[0];
+                // let viewportMin = axisX.get("viewportMinimum"),
+                //   	viewportMax = axisX.get("viewportMaximum"),
+                //   	interval = axisX.get("minimum");
+                //
+                // let newViewportMin, newViewportMax;
+                //
+                // if (e.deltaY < 0) {
+                // 	newViewportMin = viewportMin + interval;
+                // 	newViewportMax = viewportMax - interval;
+                // 	console.log("<0");
+                // } else if (e.deltaY > 0) {
+                // 	newViewportMin = viewportMin - interval;
+                // 	newViewportMax = viewportMax + interval;
+                // 	console.log(">0");
+                // }
+                //
+                // if(newViewportMin >= chart.axisX[0].get("minimum") && newViewportMax <= chart.axisX[0].get("maximum") && (newViewportMax - newViewportMin) > (2 * interval)){
+                // 	chart.axisX[0].set("viewportMinimum", newViewportMin, false);
+                // 	chart.axisX[0].set("viewportMaximum", newViewportMax);
+                // }
+            }
+
+
+        });
+
+//		function back(){
+//			var viewportMinStack = chart.options.viewportMinStack;
+//			var viewportMaxStack = chart.options.viewportMaxStack;
+//			//if(!chart.axisX){
+//			//		chart.axisX = {};
+//			//	}
+//			if(viewportMinStack.length>1){
+//			  viewportMinStack.pop();
+//			  viewportMaxStack.pop();
+//			  axisX.viewportMinimum = viewportMinStack[viewportMinStack.length-1];
+//			  axisX.viewportMaximum = viewportMaxStack[viewportMaxStack.length-1];
+//			}
+//			else{
+//			  axisX.viewportMinimum = null;
+//			  axisX.viewportMaximum = null;
+//			  document.getElementById("button").style.visibility = "hidden";
+//			}
+//			chart.render();
+//		}
+//		var button = document.getElementById( "button" );
+//		button.addEventListener( "click",  back);
+</script>-->
+<!--<script>
+    var points = [];
+    var myChart = echarts.init(document.getElementById('window'), null, {renderer: 'canvas'});
+    window.onload = function () {
+        d3.csv("sent_plot.csv").then(function(csv_data) {
+            csv_data.forEach(function(d) {
+                points.push([
+                    parseFloat(d.x),
+                    parseFloat(d.y),
+                    parseInt(d.label)
+                ]);
+            });
+        }).then(function() {
+//				console.log(points);
+            var option = {
+                calculable: false,
+                animation: false,
+                xAxis: {
+                    scale: true,
+                    min: -0.03,
+                    max: 0.03
+                },
+                yAxis: {
+                    scale: true,
+                    min: -0.025,
+                    max: 0.02
+                },
+                series: [{
+                    type: 'scatter',
+                    symbolSize: 4,
+                    data: points,
+                    itemStyle: {
+                        normal: {
+                            color: function(params) {
+                                var colorList = ['#A50026','#DC3A2B','#F67E4B','#FDC272','#FEEFA5','#E3F399','#B1DD71','#6DC063','#219B51','#006837'];
+//									console.log(params);
+                                return colorList[params.data[2] - 1];
+                            }
+                        }
+                    }
+                }, {
+                    type: 'effectScatter',
+                    symbolSize: 20,
+                    data: [
+                        [0, 0]
+                    ]
+                }]
+            };
+            myChart.setOption(option);
+        });
+    }
+    $(window).on('resize', function(){
+        if(myChart != null && myChart != undefined){
+            myChart.resize();
+        }
+    });
+</script>-->
+<!--<script>
+	let colorList = ['#A50026','#DC3A2B','#F67E4B','#FDC272','#FEEFA5','#E3F399','#B1DD71','#6DC063','#219B51','#006837'];
+	let chartData = [];
+	for (let i = 1; i <= 10; i++) {
+		let dataClass = {
+			text: i.toString(),
+			values: [],
+			tooltip: {
+//					text: '%k / %v',
+				padding: '10px',
+				alpha: 0.8,
+				backgroundColor: '#FFF',
+				borderColor: colorList[i - 1],
+				borderRadius: '8px',
+				borderWidth: '1px',
+				color: '#e24b77',
+				textAlign: 'left'
+			},
+			marker: {
+				type: 'circle',
+				backgroundColor: colorList[i - 1],
+				borderColor: '#fff',
+				borderWidth: '1px',
+				shadow: false,
+				size: '3px',
+				alpha: 0.8
+			}
+		};
+		chartData.push(dataClass);
+	}
+
+	let chartConfig = {
+		type: 'scatter',
+		theme: 'classic',
+		backgroundColor: 'None',
+		legend: {
+			adjustLayout: false,
+			alpha: 0.8,
+			borderColor: '#00a679',
+			borderRadius: '5px',
+			borderWidth: '3px',
+			cursor: 'hand',
+			item: {
+				bold: true,
+				cursor: 'hand'
+			},
+			marker: {
+				type: 'circle',
+				borderColor: '#fff',
+				borderWidth: '1px',
+				cursor: 'hand',
+				size: '5px'
+			},
+			shadow: false
+		},
+		plotarea: {
+			margin: 'dynamic dynamic dynamic dynamic'
+		},
+		scaleX: {
+			minValue: -0.015,
+			maxValue: 0.015,
+			offsetStart: '20px',
+			offsetEnd: '20px',
+			zooming:true
+		},
+		scaleY: {
+			minValue: -0.03,
+			maxValue: 0.02,
+			offsetStart: '20px',
+			offsetEnd: '20px',
+			zooming:true
+		},
+		series: chartData
+	};
+
+	d3.csv("sent_plot.csv").then(function(csv_data) {
+		csv_data.forEach(function(d) {
+			chartData[parseInt(d.label) - 1].values.push([
+				parseFloat(d.x),
+				parseFloat(d.y)
+			]);
+		});
+	}).then(function() {
+		zingchart.render({
+			id: 'myChart',
+			data: chartConfig,
+			height:'100%',
+			width:'100%'
+		});
+	});
+
+	zingchart.bind('myChart', 'mousewheel', function(p) {
+		if (p.ev.wheelDelta > 0) {
+			zingchart.exec(p.id, 'zoomin');
+		} else if (p.ev.wheelDelta < 0) {
+			zingchart.exec(p.id, 'zoomout');
+		}
+	});
+
+</script>-->
+<!--<script>
+
+	let points = [];
+
+	d3.csv("sent_plot.csv").then(function(csv_data) {
+		csv_data.forEach(function(d) {
+			points.push({
+				'x':parseFloat(d.x),
+				'value':parseFloat(d.y)
+			});
+		});
+	}).then(function() {
+
+		// create a chart
+		var chart = anychart.scatter();
+
+		// create a marker series and set the data
+		var series = chart.marker(points);
+
+		chart.interactivity().zoomOnMouseWheel(true);
+
+		// enable major grids
+		// chart.xGrid(true);
+		// chart.yGrid(true);
+
+		// configure the visual settings of major grids
+		// chart.xGrid().stroke({color: "#85adad", thickness: 0.7});
+		// chart.yGrid().stroke({color: "#85adad", thickness: 0.7});
+
+		// enable minor grids
+		// chart.xMinorGrid(true);
+		// chart.yMinorGrid(true);
+
+		// configure the visual settings of minor grids
+		// chart.xMinorGrid().stroke({color: "#85adad", thickness: 0.3, dash: 5});
+		// chart.yMinorGrid().stroke({color: "#85adad", thickness: 0.3, dash: 5});
+
+		// set the chart title
+		chart.title("Scatter Plot: Grids");
+
+		// set the container id
+		chart.container("myChart");
+
+		// initiate drawing the chart
+		chart.draw();
+
+	});
+</script>-->
+</body>
+</html>
