@@ -1,18 +1,76 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Start</title>
-<link href="../static/style.css" rel="stylesheet" type="text/css"/>
+	<meta charset="UTF-8">
+	<title>Start</title>
+	<link href="../static/styles/style.css" rel="stylesheet" type="text/css"/>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 <body>
-	<div class="cover">
-		<div class="vert_center_box cover_content">
+<div class="cover">
+	<div class="title_bar">
+		<div class="title_logo">Visual Fasttext</div>
+		<div class="title_id" id="id">ID: </div>
+	</div>
+<!--	<div id="number">No. </div>-->
+	<div class="vert_center_box cover_content">
+		<div id="step1">
+			<div class="start_text">No. <input class="start_input" type="text" id="number_input"/></div>
+			<div class="start_button_container">
+				<div class="animate start_button" onClick="set_group(1)">Group I</div>
+				<div class="animate start_button" onClick="set_group(2)">Group II</div>
+				<div class="animate start_button" onClick="set_group(3)">Group III</div>
+			</div>
+		</div>
+		<div id="step2" class="invisible">
 			<div class="start_text">Press the button to start</div>
 			<div class="start_button_container">
-				<div class="animate start_button">Start</div>
+				<div id="start" class="animate start_button" onClick="start()">Start</div>
 			</div>
 		</div>
 	</div>
+</div>
+
+<script>
+	// $(function() {
+	// $("#start").bind('click', function() {
+	// 	$.getJSON('/open-training', function() {
+	//
+	// 	});
+	// 	return false;
+	// });
+
+	// $('#start').click(function() {
+	// 	$.ajax({
+	// 		url: '/training',
+	// 		// data: 'none',
+	// 		type: 'POST',
+	// 		// success: function(response) {
+	// 		// 	console.log(response);
+	// 		// },
+	// 		// error: function(error) {
+	// 		// 	console.log(error);
+	// 		// }
+	// 	});
+	// });
+	// });
+
+	let number = "";
+	let group = 0;
+
+	function set_group(group_value) {
+		group = group_value;
+		document.getElementById("step1").setAttribute("class", "invisible");
+		document.getElementById("step2").setAttribute("class", "");
+		number = document.getElementById("number_input").value;
+		// document.getElementById("number").innerHTML = "No. " + number;
+		document.getElementById("id").innerHTML = "ID: " + number;
+	}
+
+	function start() {
+		window.open("/training?group=" + group + "&id=" + number);
+		return false;
+	}
+</script>
 </body>
 </html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Plotly.js -->
+    <script src="../static/plotly-latest.min.js"></script>
+    <title></title>
+</head>
+<body>
+<!-- Plotly chart will be drawn inside this DIV -->
+<div id="myDiv"></div>
+<script>
+    let myPlot = document.getElementById('myDiv'),
+        d3 = Plotly.d3,
+        N = 12,
+        x1 = d3.range(N).map( d3.random.normal() ),
+        x2 = d3.range(N).map( d3.random.normal() ),
+        x3 = d3.range(N).map( d3.random.normal() ),
+        y1 = d3.range(N).map( d3.random.normal() ),
+        y2 = d3.range(N).map( d3.random.normal() ),
+        y3 = d3.range(N).map( d3.random.normal() ),
+        months = ['January', 'February', 'March', 'April',
+            'May', 'June', 'July', 'August',
+            'September', 'October', 'November', 'December'];
+    data = [
+        { x: x1, y: y1, text: months, type: 'scatter', name: '2014', hoverinfo: 'text+x+y',
+        mode: 'markers', marker: {color: 'rgba(200, 50, 100, .7)', size: 16}
+        },
+        { x: x2, y: y2, text: months, type: 'scatter', name: '2015', hoverinfo: 'text+x+y', xaxis: 'x2',
+            yaxis: 'y2', mode: 'markers', marker: {color: 'rgba(120, 20, 130, .7)', size: 16}
+        },
+        { x: x3, y: y3, text: months, type: 'scatter', name: '2016', hoverinfo: 'text+x+y', xaxis: 'x3',
+            yaxis: 'y3', mode: 'markers', marker: {color: 'rgba(10, 180, 180, .8)', size: 16}
+        }
+    ];
+    layout = {
+        hovermode:'closest',
+        grid: {rows: 1, columns: 3, pattern: 'independent'}
+    };
+
+    Plotly.newPlot('myDiv', data, layout);
+
+    myPlot.on('plotly_hover', function (eventdata){
+        var points = eventdata.points[0],
+            pointNum = points.pointNumber;
+
+        console.log(eventdata);
+        Plotly.Fx.hover('myDiv',[
+            [{curveNumber: 1, pointNumber: pointNum},
+            ['xy', 'x2y2', 'x3y3']]
+        ]);
+    });
+</script>
+</body>
+</html>

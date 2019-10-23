@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Vis-Tuning</title>
+    <link href="../static/styles/style.css" rel="stylesheet" type="text/css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/d3js/5.9.0/d3.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+<div class="title_bar">
+    <div class="title_logo">Visual Fasttext</div>
+    <div class="title_id" id="id">ID: </div>
+    <div id="next" class="title_ready_btn">Next</div>
+</div>
+<div class="full_width game_container">
+    <div class="ho_center game_content">
+        <div class="question">How did the commentor rate this movie?</div>
+        <div class="stars">
+            <span id="1star" class="star fa fa-star"></span>
+            <span id="2star" class="star fa fa-star"></span>
+            <span id="3star" class="star fa fa-star"></span>
+            <span id="4star" class="star fa fa-star"></span>
+            <span id="5star" class="star fa fa-star"></span>
+            <span id="6star" class="star fa fa-star"></span>
+            <span id="7star" class="star fa fa-star"></span>
+            <span id="8star" class="star fa fa-star"></span>
+            <span id="9star" class="star fa fa-star"></span>
+            <span id="10star" class="star fa fa-star"></span>
+        </div>
+        <div id="review_box" class="review_box"></div>
+    </div>
+</div>
+<script>
+
+    const scale = 20;
+
+    let ratings = new Array(scale);
+
+    $(function() {
+        for (let i = 1; i <= 10; i++) {
+            $("#" + i.toString() + "star").click(function () {
+                rate(i);
+            });
+        }
+    });
+
+    document.getElementById("id").innerHTML = "No. {{id}}";
+
+    function addSentence(sen) {
+        let result = document.getElementById("review_box");
+        while (result.lastChild) {
+            result.removeChild(result.lastChild);
+        }
+
+        let sentence = document.createElement("div");
+        sentence.setAttribute("class", "sentence full_width");
+        result.appendChild(sentence);
+
+        let words = document.createElement("div");
+        words.setAttribute("class", "words main");
+        sentence.appendChild(words);
+
+        let word_panel = document.createElement("div");
+        word_panel.setAttribute("class", "word_panel");
+        words.appendChild(word_panel);
+
+        // let wrap = false;
+        // console.log(sen);
+        let word_list = sen.split(/<BREAK>|\s/);
+        for (let w of word_list) {
+            if (w !== "") {
+                let word = document.createElement("div");
+                if (w === "<NEWLINE>") {
+                    word.className = "newline";
+                } else {
+                    word.className = "word";
+                    word.innerText = w;
+                }
+                word_panel.appendChild(word);
+            }
+        }
+    }
+
+    // let sen = "bad acing bad writing just bad. this movie is long, boring, pointless, i could go on. i would rather watch bees mating than this movie. at least there would be some emotion. And don't even get me started on josh hartnett. yuck. not even his uni brow could detract from his bad acting. the only \"good\" (im using the word very loosely) thing about this movie was when josh hartnett said the line \"i found your powder case\" like 3 times in a very deep cheesy voice that was so bad i just had to laugh. i mean, come on is Hollywood really this desperate that they have to make a movie about.... i don't even no what it was about thats how sh**y it was. if you want to see something exciting, i suggest you watch paint dry rather than endure this \"movie\" (again i use this term loosely).";
+
+    let rating = 0;
+    let review_id = 0;
+    let sentences = [
+        "The whole of Spectre looks tired<BREAK>. From its ageing star Daniel Craig<BREAK>, who famously remarked that he would rather slash his wrists than make another Bond movie to the script<BREAK>, direction and stunts<BREAK>. <NEWLINE> It appears that Craig's apathy has infected everyone who worked on the production<BREAK>, that no one made an effort<BREAK>, that they were all just glad to be finished regardless of the quality of the final product<BREAK>. <NEWLINE> Is it a sign of laziness that the film cast Lea Seydoux from Mission Impossible Ghost Protocol<BREAK>? possibly<BREAK>. <NEWLINE> Does SPECTRE contain the most tedious uninvolving car chase ever filmed<BREAK>? undoubtedly<BREAK>. <NEWLINE> Towards the end of the movie<BREAK>, where Bond dispatches enemy guards who stand around waiting to be killed<BREAK>, it is almost impossible to suppress a groan of horror that the Bond franchise has sunk to such depths<BREAK>. <NEWLINE> Daniel Craihg says that he would rather slash his wrists than star in another Bond movie<BREAK>? I'd rather slash my wrists than watch one<BREAK>.<BREAK>",
+        "I'm a huge fan of the Piates of the Caribbean movies<BREAK>, but I was a little nervous about seeing this third installment because of the not as good other third installments<BREAK>. I still had pretty high expectations<BREAK>, and I was not disappointed<BREAK>! The plot was brilliant and very creative<BREAK>, with plenty of exciting twists and turns<BREAK>. As always<BREAK>, the acting was incredible<BREAK>. Johnny Depp always does an amazing job<BREAK>, but his Captain Jack Sparrow is probably one of his bests works yet<BREAK>! I still don't see how anyone could be so brilliant<BREAK>.<BREAK>.<BREAK>. Anyways<BREAK>, overall<BREAK>, just a really great film<BREAK>. Better than the other Pirate films in the trilogy (<BREAK>and you know how good those are<BREAK>!<BREAK>) See it<BREAK>, you won't be disappointed<BREAK>!<BREAK>",
+        "No spoiler review: <NEWLINE> As a Bond fan this was a really poor showing<BREAK>. I have enjoyed Daniel for the most part in each film<BREAK>. However<BREAK>, this one felted weighted and boring<BREAK>. I went and saw it opening night looking forward to something close to Skyfall or at least Quantum of Solace<BREAK>. Instead I think it would have been better renting it<BREAK>. It was slow<BREAK>, the enemies seemed almost confused on what they were doing and overall the story felt forced<BREAK>. After seeing this film I see why Daniel was saying he didn't want to do another<BREAK>. This director I think might be getting bored<BREAK>, as he shot far to many artistic panoramas like it is a Western and arty Bond angles which simply were not needed<BREAK>. I hope Daniel does anther but they have a different writer and director<BREAK>.<BREAK>",
+        "I liked the new Toy Story 3 fairly well although it's not quite up to par to many of the newer Pixar releases<BREAK>, and not as involving as the original Toy Story or as entertaining as the Toy Story 2<BREAK>. I'd rank it a little behind \"Up\" in terms of entertainment<BREAK>. It was a fun outing worth catching in the theater<BREAK>. Most (<BREAK>if not all<BREAK>) the original voice actors are back in action and do a satisfactory job of voice work<BREAK>. The underlying story is somewhat slow moving at times while there are a couple standout funny parts<BREAK>, and a good beginning and touching ending<BREAK>. I think it's about time to put this particular movie series to bed although it's original predecessor helped usher in the era for Pixar Movies for which I always have quite high expectations<BREAK>.<BREAK>",
+        "Sunday afternoon<BREAK>, nothing to do and awful weather<BREAK>.<BREAK>. I was looking for an action movie which could take my mind off that boring day and I rented \"15 minutes\"<BREAK>. <NEWLINE> I was seriously disappointed<BREAK>. I watched a few movies as bad as this one and I thought it was going to be much better because of Robert De Niro<BREAK>.<BREAK>. I was wrong<BREAK>! There's no action (<BREAK>or at least not good action<BREAK>)<BREAK>, far too much violence and the continuous subtitle from Russian are distracting<BREAK>. The plot is not very good and the fact that a fireman could work side by side with a policeman is not explained well enough<BREAK>. <NEWLINE> One more bad side<BREAK>, the audio is very bad<BREAK>. You can't understand anything they say when they are on the street of where there's a bit of action/shooting<BREAK>. <NEWLINE> DO NOT watch this movie<BREAK>!<BREAK>!<BREAK>",
+        "This is the worst Bond movie ever<BREAK>, filled with emotionless characters that I couldn't care less about<BREAK>. The pace of this film after a predictably exciting start is slow and boring<BREAK>. Unlike his fellow actors<BREAK>, Ben Whishaw as Q manages to portray the only believable human in this whole fake production<BREAK>. Why couldn't JB have been given a touch of Q's wit<BREAK>, humour or vulnerability<BREAK>? No wonder Daniel Craig wants out of this franchise - it's beneath his talent<BREAK>. Such a cacophony of totally forgettable dialogue<BREAK>, people and silly stunts is hard to imagine in a single movie and yet here it is<BREAK>. During one of the 'action' fights when James was being hammered by the evil assassin I noticed the person next to me had fallen asleep and was snoring<BREAK>. That person was an exceedingly eloquent critic<BREAK>.<BREAK>",
+        "Going into this movie I had one wish: To leave feeling that it was a successful conclusion to a two-part film<BREAK>. Taking Reloaded/Revolutions as a single (<BREAK>very large<BREAK>) movie with an intermission is the best way to evaluate it<BREAK>. Viewed that way I think it succeeded<BREAK>. I thought Revolutions was the equal of Reloaded<BREAK>, yet I can see how many will think it failed<BREAK>. The ending gave us everything we needed to know<BREAK>, but did not show us all we wanted to see<BREAK>. I'm speaking of the last twenty minutes or so here<BREAK>. After a visually robust middle<BREAK>, in which I felt my eyes grow larger in their sockets more than once<BREAK>, the ending seemed like an anticlimax<BREAK>. It needed to be longer<BREAK>, and I would gladly have traded some of the fx flair used earlier to give the final part of the film it's justified due<BREAK>. It will be awhile before I can look at it more objectively (<BREAK>perhaps I'll have to wait to view the two parts as one on DVD<BREAK>)<BREAK>. I only suggest now that anyone seeing it let it sink in completely before being too critical<BREAK>.<BREAK>",
+        "If you want to see a painfully unoriginal and unengaging story of paint-by-number characters getting at it in the green room for 90% of the time<BREAK>, go see this movie<BREAK>. <NEWLINE> The most deplorable thing about this movie - aside from the plot being an incoherent mess - is the way the villains are portrayed as caricatures<BREAK>, and the good guys as saints who can do no wrong<BREAK>. I don't know about you<BREAK>, but when the villains are portrayed as sadistic psychopaths with no real motive or character<BREAK>, I lose interest in the story<BREAK>. <NEWLINE> tl;dr lots of CG<BREAK>, completely two-dimensional characters and a plot that could've been auto-generated with a smartphone app<BREAK>.<BREAK>",
+        "This movie has one of Will Smith's best performances with the right emotions and never ruining a moment with inappropriate comedy<BREAK>. The whole film is a good balance of drama<BREAK>, suspense and action<BREAK>, not to mention terror<BREAK>. The film can be heartbreaking at times<BREAK>, to the point I myself was drawn to tears<BREAK>. I can't say much about this movie without spoiling it for those who may have not seen it<BREAK>, but the score by James newton Howard is saddening and one of his best<BREAK>. <NEWLINE> The atmosphere is full of a silent tension<BREAK>. Despite it's short length<BREAK>, the film is an escapade that must be seen to be believed<BREAK>. Over all great film and I definitely recommend it<BREAK>.<BREAK>",
+        "I gave it 4 stars only because I'm rounding up from the 3<BREAK>.<BREAK>5 it probably deserves<BREAK>. The first hour and a quarter the movie was cheesy and with horrible lines (<BREAK>\"you nicknamed my daughter after the loch Ness monster<BREAK>?<BREAK>) but in my opinion the acting was at least better than the rest<BREAK>. The CGI of the baby and little girl was so horrible I was actually embarrassed for the actors in the scenes who couldn't have known during shooting how silly they would look interacting with it<BREAK>. It was simply awful<BREAK>. <NEWLINE> Now<BREAK>, what saves the movie is the last 20 minutes<BREAK>. I thought it was an incredible twist only truly able to be appreciated by readers of the books<BREAK>. I bet it made Stephanie Meyer wish she wrote it that way<BREAK>. It was fun to experience the audiences astonishment as events unfolded<BREAK>.<BREAK>.<BREAK>. And to be honest<BREAK>, I wrestled with my own unexpected feelings as I watched it<BREAK>. In the end though<BREAK>, those last 20 minutes and the great performance (<BREAK>as usual<BREAK>) by Michael Sheen saved the movie from being a wasted night<BREAK>. In fact<BREAK>, the last 20 minutes alone ALMOST makes me want to see it again<BREAK>.<BREAK>",
+        "When i heard people calling this movie the \"best comicbook movie ever\" and \"Masterpiece\" i should have known that was fanboy hype<BREAK>.<BREAK>So when i went to the movie theater i was expecting to be blown away<BREAK>.<BREAK>The movie can be best described as solid but nothing that special<BREAK>.<BREAK>Robert Downey Jnr basically holds this movie together<BREAK>,<BREAK>without him it could have been a disaster<BREAK>.<BREAK>But the movie was quite enjoyable and given what Marvel have given us the past few years this was one of their better offerings<BREAK>,<BREAK>kudos Mr Favreau<BREAK>.<BREAK>Overall this movie was a 7/10 and i still feel that Batman Begins is the benchmark for style<BREAK>,<BREAK>depth and tone of comicbook movies<BREAK>,<BREAK>sadly this does not surpass it<BREAK>.<BREAK>",
+        "Lets be frank<BREAK>. If you had a dime for every time Hollywood took something dusty and old<BREAK>, and tried to turn it into something shiny and new<BREAK>, you could retire<BREAK>. <NEWLINE> In fact<BREAK>, most of these attempts barely work<BREAK>. But (<BREAK>having seen this one front to back three times since its first release<BREAK>) I believe this is an exception and moreover I believe that viewers have become so jaded to these attempts that they instinctively rebelled against the film (<BREAK>hence the low rating<BREAK>) without even giving it a chance<BREAK>. <NEWLINE> The script by Seth Grahame-Smith is witty and clever and engaging<BREAK>. And wonderfully demented<BREAK>. The cast is to die for<BREAK>. Eva Green and Johnny Depp are at the peak of their craft<BREAK>, delivering with a straight face bits of dialog that lesser actors would choke on<BREAK>. The supporting cast (<BREAK>almost all A-list with a young Chloë Grace Moretz<BREAK>) is rock solid<BREAK>. <NEWLINE> Overall a delightfully deranged yet still entertaining exercise in being silly -- which is exactly what Hollywood aims for in these odd exercises<BREAK>. <NEWLINE> The IMDb rating is much too low<BREAK>. Give it another chance<BREAK>.<BREAK>",
+        "The stunning virtual world of Wall<BREAK>.<BREAK>E shows Pixar at the top of their creative graphic powers<BREAK>. Going over the beautiful CGI in my head<BREAK>, I'm still in awe of how the designers portrayed Wall<BREAK>.<BREAK>E's integrated world and their attention to detail will serve as a benchmark for years<BREAK>. That said<BREAK>, I'm less impressed by the simple and very predictable plot<BREAK>. Pixar/Disney married state-of-the-art visuals with a worn plot line from an early childhood fairy tale<BREAK>. I'm guessing the target audience for this movie is somewhere around 6th graders<BREAK>. Great summer family fare but not a great movie if you want something more substantial in terms of plot and character development<BREAK>.<BREAK>",
+        "I have NEVER been so disappointed in a movie in my life<BREAK>. How in the world can the story of Superman be screwed up so badly<BREAK>. I wish I could get my money back<BREAK>. The storyline was bad<BREAK>, the acting was bad<BREAK>, the action scenes were too much<BREAK>. Why would they do this to such a great story<BREAK>. I honestly do not see how anyone could like this movie if they have ever known anything about Superman<BREAK>. The scenes from Krypton were bad<BREAK>, the way they used flashbacks to tell the Smallville story was bad<BREAK>, the whole Zod storyline was poorly written<BREAK>. The battle scenes look like they destroyed Metropolis yet Clark goes to work at the Daily Planet at the end<BREAK>?<BREAK>?<BREAK>?<BREAK>? This was an overproduced poorly written movie with a storyline that has so much potential<BREAK>. I suggest everyone save their money<BREAK>.<BREAK>",
+        "My wife and I took our 3 adult children for our traditional Thanksgiving family movie<BREAK>, and we were all disappointed<BREAK>. I think there is a good story<BREAK>, from the book<BREAK>, behind it but it wasn't actually shown well on the screen<BREAK>. It was too mosaic<BREAK>. There are several characters played well by great actors who are not developed well and could have been left out entirely without changing how you \"felt\" about the main characters or how they changed/grew through the twists and turns of the story<BREAK>. I would have preferred seeing a better written story that better demonstrates the internal changes that the characters are forced to make<BREAK>. I recommend folks go with low expectations<BREAK>.<BREAK>",
+        "shame as pedigree was good /stars /director/ <NEWLINE> but it was all computer effects and poor little story<BREAK>,<BREAK>in fact 'saving private Ryan' undertones<BREAK>. like lots<BREAK>, take out the effects and whats left<BREAK>? Emily blunt is a exceptional actress but wasted here London trafalgar squares the only piece that is real and looks so so effects out and zero<BREAK>. acting OK<BREAK>, convincing<BREAK>. but thats all the reviews are from under 21s at a guess' the effects are good<BREAK>, but constant would have loved a little more storyline<BREAK>, and less action<BREAK>, action is best when you are involved<BREAK>, this didn't involve us at all sorry tom better next time<BREAK>. hope your mission next is also better than last<BREAK>.<BREAK>",
+        "I cant really say it was a bad movie<BREAK>, but after the other Spiderman movies I was really disappointed with this one<BREAK>. <NEWLINE> The 3D scenes are pretty poor<BREAK>, I would rather see them normally then how they filmed it in 3D<BREAK>. Also the action scenes are short and not that exciting<BREAK>. The movie is also missing some real drama and emotion<BREAK>, the dramatic scenes (<BREAK>like where is uncle dies<BREAK>) are just very fast and basically skipped<BREAK>. <NEWLINE> I also think that Spiderman is really weak here<BREAK>, he doesn't really feel like a superhero<BREAK>. He's running away from some gangster and gets shot by policeman<BREAK>. <NEWLINE> If I knew the movie was like this I wouldn't have watch it in the cinema<BREAK>, its just not worth the money<BREAK>.<BREAK>",
+        "Well<BREAK>, I previously said this movie was a modern day successor to The Spy Who Loved Me and Brosnan's best<BREAK>. That was in the warm glow of post cinema viewing<BREAK>. Now I've got the DVD and guess what<BREAK>? It's a dog<BREAK>. In fact<BREAK>, so was The World Is Not Enough (<BREAK>only marginally less so<BREAK>)<BREAK>. I felt the same way about Attack of the Clones too and now we all know that's a dog too<BREAK>! Die Another Day has some good scenes - the swordfight<BREAK>, the Q scene - and Brosnan gets better with each film<BREAK>, but this is really poor stuff<BREAK>. The introduction of Halle Berry's character Jinx features the most cardboard dialogue and painfully laboured acting I've seen since Plan 9 From Outer Space<BREAK>. Oh<BREAK>, hang on<BREAK>, I've just remebered the love scene between Hayden Christiansen and Natalie Portman in AOTC<BREAK>.<BREAK>.<BREAK>. Anyway<BREAK>, add to the awful direction some extremely rushed CGI (<BREAK>why couldn't they have fixed the ice sled scene for the DVD<BREAK>?<BREAK>)<BREAK>, utterly convoluted script and and the painfully misguided attempts to try and out-do every previous 007 film setpiece and all you get is a big loud mess<BREAK>. Goldeneye is Citizen Kane in comparison<BREAK>. Lee Tamahori<BREAK>? I here he's considering helming the sequel to XXX<BREAK>, the lame Bond rip-off starring Vin Diesel<BREAK>. I doubt he's up to the task<BREAK>.<BREAK>",
+        "I expected more spectacular and impressive film<BREAK>. Movie is good and enjoyable<BREAK>, is also completed<BREAK>, unlike other parts<BREAK>. Many helps 3D effect<BREAK>. The best moments are collected in advertising the film<BREAK>. However<BREAK>, it should be seen<BREAK>, one of the mandatory<BREAK>. Penelope stood not particularly well<BREAK>. Interestingly<BREAK>, once again<BREAK>, Depp is not presented as a leader<BREAK>, but the entire film rests on Depp<BREAK>. I do not see how the movie will be extended without losing the magic<BREAK>. In my opinion<BREAK>, should be scored another strong character<BREAK>. Depp to present itself as an adult who instructs his grandson Charlie Sheen:<BREAK>)<BREAK>. The new target of the pirates may be to find Atlantis and come into collision with pirates from other planets<BREAK>.<BREAK>",
+        "The original was an iconic part of cinema from the 80s<BREAK>, a movie which actually managed to live up to its big hype<BREAK>, budget and comic star filled cast<BREAK>. So<BREAK>, I went into this reboot with a little trepidation<BREAK>. <NEWLINE> I was quite pleasantly surprised<BREAK>. Like the original<BREAK>, it had a little bit of set up to do<BREAK>, but similarly it soon delivered with plenty of laughs and fun<BREAK>. From the trailers I thought there might be great slabs of material cut and pasted with a new skin<BREAK>, but the reboot manages to give just enough nods to the original while standing firmly on its own feet<BREAK>. <NEWLINE> The story was a little tighter than the original; e<BREAK>.<BREAK>g<BREAK>. the supernatural macguffin being more accessible than in the original (<BREAK>\"<BREAK>.<BREAK>.<BREAK>.<BREAK>entire roof cap is made out of a magnesium-tungsten alloy\"<BREAK>)<BREAK>. <NEWLINE> The original cast's performance certainly left big shoes to fill<BREAK>, the current actors did a great job in filling them (<BREAK>despite the pre-emptive howls from the bloggertariate<BREAK>)<BREAK>. The group dynamic<BREAK>, if not the individual performances<BREAK>, were an improvement on original<BREAK>. <NEWLINE> If I had one criticism (<BREAK>yes<BREAK>, I know that you Reddit users have about 420<BREAK>,<BREAK>000 more<BREAK>) it is the obviously deleted scene cut for<BREAK>(<BREAK>presumably valid<BREAK>) timing reasons did jar a little<BREAK>.<BREAK>"
+    ];
+
+    // const file = '/static/data/gamedata.txt';
+    // $.get(file, function(txt){
+    //     // console.log(txt);
+    //     let lines = txt.split("\n");
+    //     // console.log(lines);
+    //     for (let i = 0; i < lines.length; i++) {
+    //         sentences.push(lines[i]);
+    //     }
+    // });
+
+    // console.log(sentences);
+
+
+    function rate(score) {
+        rating = score;
+        for (let i = 1; i <= 10; i++) {
+            if (i <= score) {
+                document.getElementById(i + "star").className = "star fa fa-star checked";
+            } else {
+                document.getElementById(i + "star").className = "star fa fa-star";
+            }
+        }
+    }
+
+    function clear() {
+        rating = 0;
+        for (let i = 1; i <= 10; i++) {
+            document.getElementById(i + "star").className = "star fa fa-star";
+        }
+    }
+
+
+    function fakeClick(obj) {
+        var ev = document.createEvent("MouseEvents");
+        ev.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        obj.dispatchEvent(ev);
+    }
+
+    function exportRaw(name, data) {
+        var urlObject = window.URL || window.webkitURL || window;
+        var export_blob = new Blob([data]);
+        var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
+        save_link.href = urlObject.createObjectURL(export_blob);
+        save_link.download = name;
+        fakeClick(save_link);
+    }
+
+    function next_sentence() {
+        ratings[review_id] = rating;
+        if (review_id < scale - 1) {
+            clear();
+            review_id++;
+            addSentence(sentences[review_id]);
+        } else {
+            console.log(ratings);
+            window.open("/rating2?id={{id}}&rating=" + ratings);
+        }
+    }
+
+    $(function() {
+        $("#next").click(function() {
+            next_sentence();
+        });
+    });
+
+    addSentence(sentences[0]);
+
+
+</script>
+</body>
+</html>

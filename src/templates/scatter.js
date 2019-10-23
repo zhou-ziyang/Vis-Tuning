@@ -5,6 +5,7 @@ function plot_scatter(file, target, source) {
     // let colorList = ['#C23843', '#C24C43', '#C25E43', '#C26D43', '#C27543', '#C28743', '#C29343', '#C2A943', '#C2C543', '#C2D443'];
     let map = [0, 9, 2, 7, 3, 6, 1, 8, 4, 5];
     let scatter_data = new Array(classes);
+    let colors = [];
 
     for (let i  = 0; i < classes; i++) {
         scatter_data[i] = {
@@ -13,7 +14,7 @@ function plot_scatter(file, target, source) {
             text: [],
             mode: 'markers',
             hoverinfo: 'text',
-            type: 'pointcloud',
+            type: 'scattergl',
             name: (map[i] + 1).toString() + " stars",
             opacity: 0.9,
             marker: {

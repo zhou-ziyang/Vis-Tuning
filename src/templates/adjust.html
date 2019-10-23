@@ -75,30 +75,54 @@
 		word_panel.setAttribute("class", "word_panel");
 		words.appendChild(word_panel);
 
-		let word_list = sen.split(" ");
+		// let wrap = false;
+		let word_list = sen.split(/<SPACE>|\s/);
 		for (let w of word_list) {
-			let word = document.createElement("div");
-			word.setAttribute("class", "word");
-			word.innerText = w;
-			word_panel.appendChild(word);
+			if (w !== "") {
+				let word = document.createElement("div");
+				if (w === "<NEWLINE>") {
+					word.className = "newline";
+				} else {
+					word.className = "word";
+					word.innerText = w;
+				}
+				word_panel.appendChild(word);
+			}
 		}
 	}
 
-	let sen = "bad acing bad writing just bad. this movie is long, boring, pointless, i could go on. i would rather watch bees mating than this movie. at least there would be some emotion. And don't even get me started on josh hartnett. yuck. not even his uni brow could detract from his bad acting. the only \"good\" (im using the word very loosely) thing about this movie was when josh hartnett said the line \"i found your powder case\" like 3 times in a very deep cheesy voice that was so bad i just had to laugh. i mean, come on is Hollywood really this desperate that they have to make a movie about.... i don't even no what it was about thats how sh**y it was. if you want to see something exciting, i suggest you watch paint dry rather than endure this \"movie\" (again i use this term loosely).";
+	let sen = "The story of the Zodiac could have been interesting but this movie proved to be a two hour and forty " +
+			"minute bore-fest. Most of the movie is spent on the investigation as scene after scene piles on " +
+			"pieces of evidence for the characters to ponder<SPACE>. The movie tries (<SPACE>and fails<SPACE>) to show " +
+			"you how the investigation adversely affected the lives of a reporter (<SPACE>played by Robert Downey " +
+			"Jr<SPACE>)<SPACE>, a homicide inspector (<SPACE>played by Mark Ruffalo<SPACE>)<SPACE>, and a cartoonist " +
+			"(<SPACE>played by Jake Gyllenhaal<SPACE>) hence the poster's tag line \"There's more than one way to lose " +
+			"your life to a killer<SPACE>.<SPACE>\" <NEWLINE> The strategy of the movie is this: To show how " +
+			"frustrating and tiresome a murder investigation can be<SPACE>, the movie wants to put you through a " +
+			"frustrating and tiresome experience<SPACE>. To make us feel the way the characters spent long wasted " +
+			"hours sifting through the minutiae of the case in the vain effort to arrest a suspect<SPACE>, the movie " +
+			"puts you through a long 160 minutes of minutiae for you to sift through<SPACE>. The movie worked on me as " +
+			"intended I was maddeningly frustrated and extremely tired<SPACE>. This is great story-telling<SPACE>? " +
+			"Nope<SPACE>, I'm not buying that pretentious load of baggage<SPACE>. <NEWLINE> How did the Zodiac affect " +
+			"the main characters<SPACE>? I wouldn't know<SPACE>. The movie never tries to understand them emotionally " +
+			"or psychologically<SPACE>. The script doesn't give them much to do except sift minutiae and the acting " +
+			"can't seem to rise above the ponderous bleakness stretched across the whole production<SPACE>. <NEWLINE> " +
+			"Zodiac is a waste of your time<SPACE>. Wait and see it on late night cable when you need to catch up on " +
+			"some sleep<SPACE>.";
 
 	addSentence(sen);
 </script>
 <script>
 	window.onload=function() {
-		let classes = 10;
-
 		let colorList = ['#A50026', '#DC3A2B', '#F67E4B', '#FDC272', '#FEEFA5', '#E3F399', '#B1DD71', '#6DC063', '#219B51', '#006837'];
 		// let colorList = ['#C23843', '#C24C43', '#C25E43', '#C26D43', '#C27543', '#C28743', '#C29343', '#C2A943', '#C2C543', '#C2D443'];
 		let map = [1, 3, 5, 7, 9, 2, 4, 6, 8, 10].reverse();
-		let scatter_data = new Array(classes + 1);
+		let scatter_data = new Array(2);
+		let colors = [];
 		let xValues = [];
 		let yValues = [];
 		let zValues = [];
+		let z_n = [];
 
 		const acc = 100;
 
@@ -117,26 +141,26 @@
 			return ret;
 		}
 
-		for (let i = 1; i <= classes; i++) {
-			scatter_data[i] = {
-				x: [],
-				y: [],
-				text: [],
-				// xaxis: 'x1',
-				// yaxis: 'y1',
-				mode: 'markers',
-				hoverinfo: 'text',
-				type: 'scatter',
-				name: (map[i - 1]).toString() + " stars",
-				opacity: 0.9,
-				marker: {
-					sizemin: 30,
-					sizemax: 30,
-					size: 3,
-					color: colorList[map[i - 1] - 1]
-				}
-			};
-		}
+		scatter_data[1] = {
+			x: [],
+			y: [],
+			text: [],
+			mode: 'markers',
+			hoverinfo: 'text',
+			type: 'scattergl',
+			name: 'text',
+			opacity: 0.9,
+			marker: {
+				sizemin: 30,
+				sizemax: 30,
+				size: 5,
+				line: {
+					width: 0.4,
+					color: '#777777'
+				},
+				color: colors
+			}
+		};
 
 		let layout = {
 			xaxis: {
@@ -159,17 +183,19 @@
 			plot_bgcolor: 'transparent'
 		};
 
-		d3.csv("sent_plot.csv").then(function (data) {
+		d3.csv("scatter.csv").then(function (data) {
 			x_start = 0;
 			x_end = 0;
 			y_start = 0;
 			y_end = 0;
 
 			data.forEach(function (d) {
-				let target = scatter_data[map.indexOf(parseInt(d.pred)) + 1];
+				// let target = scatter_data[map.indexOf(parseInt(d.pred)) + 1];
+				let target = scatter_data[1];
 				target.x.push(parseFloat(d.x));
 				target.y.push(parseFloat(d.y));
 				target.text.push(d.pred);
+				colors.push(colorList[parseInt(d.pred) - 1]);
 				x_max = Math.max(x_max, d.x);
 				x_min = Math.min(x_min, d.x);
 				y_max = Math.max(y_max, d.y);
@@ -184,10 +210,14 @@
 			yValues = linspace(y_start, y_end, 1 / acc);
 
 			zValues = new Array(yValues.length);
+			z_n = new Array(yValues.length);
 			for (let i = 0; i < yValues.length; i++) {
 				zValues[i] = new Array(xValues.length);
-				for (let j = 0; j < xValues.length; j++)
+				z_n[i] = new Array(xValues.length);
+				for (let j = 0; j < xValues.length; j++) {
 					zValues[i][j] = null;
+					z_n[i][j] = 0;
+				}
 			}
 
 			// console.log(x_start, x_end, y_start, y_end);
@@ -199,7 +229,14 @@
 			data.forEach(function (d) {
 				x_coor = Math.round((parseFloat(d.x) - x_start) * acc);
 				y_coor = Math.round((parseFloat(d.y) - y_start) * acc);
-				zValues[y_coor][x_coor] = parseInt(d.pred);
+				if (zValues[y_coor][x_coor] != null) {
+					zValues[y_coor][x_coor] = parseInt(d.pred);
+					z_n[y_coor][x_coor]++;
+				} else {
+					zValues[y_coor][x_coor] = (zValues[y_coor][x_coor] * z_n[y_coor][x_coor] + parseInt(d.pred)) / (z_n[y_coor][x_coor] + 1);
+					z_n[y_coor][x_coor]++;
+				}
+
 			});
 			// console.log(xValues, yValues, zValues);
 		}).then(function () {
@@ -214,17 +251,18 @@
 				// xaxis: 'x2',
 				// yaxis: 'y2',
 				colorscale: [
-					// ['0.0', '#8A0002'],
-					['0.0', '#A50026'],
-					['0.1111', '#DC3A2B'],
-					['0.2222', '#F67E4B'],
-					['0.3333', '#FDC272'],
-					['0.4444', '#FEEFA5'],
-					['0.5555', '#E3F399'],
-					['0.6666', '#B1DD71'],
-					['0.7777', '#6DC063'],
-					['0.8888', '#219B51'],
-					['1.0', '#006837']
+					['0.0', '#8A0002'],
+					['0.05', '#A50026'],
+					['0.15', '#DC3A2B'],
+					['0.25', '#F67E4B'],
+					['0.35', '#FDC272'],
+					['0.45', '#FEEFA5'],
+					['0.55', '#E3F399'],
+					['0.65', '#B1DD71'],
+					['0.75', '#6DC063'],
+					['0.85', '#219B51'],
+					['0.95', '#006837'],
+					['1.0', '#085a2e']
 				]
 			};
 
@@ -232,24 +270,8 @@
 				scrollZoom: true
 			};
 
-			Plotly.newPlot('window', scatter_data, layout, config);
+			Plotly.newPlot('window', [scatter_data[1]], layout, config);
 		});
-
-		var data2 = [{
-		  z: [[10, 10.625, 12.5, 15.625, 20],
-			 [5.625, 6.25, 8.125, 11.25, 15.625],
-			 [2.5, 3.125, 5., 8.125, 12.5],
-			 [0.625, 1.25, 3.125, 6.25, 10.625],
-			 [0, 0.625, 2.5, 5.625, 10]],
-		  type: 'heatmap',
-		  colorscale: 'Jet',
-		}];
-
-		var layout2 = {
-		  title: 'Colorscale for Contour Plot'
-		};
-
-		// Plotly.newPlot('window', [test_trace], layout2, {scrollZoom: true});
 	}
 </script>
 <!--<script>

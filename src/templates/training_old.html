@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<link href="../static/styles/style.css" rel="stylesheet" type="text/css"/>
+	<script src="https://ajax.googleapis.com/ajax/libs/d3js/5.9.0/d3.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<!--    <script src="../static/sentence.js"></script>-->
+</head>
+<body class="unscrollable">
+<div class="title_bar">
+	<div class="title_logo">Visual Fasttext</div>
+	<div class="title_id" id="id">ID: </div>
+	<div class="title_ready_btn" onclick="rating()">Ready</div>
+</div>
+<div class="training_page">
+	<div class="training_row">
+		<div id="left_sidebar" class="left sidebar_training main">
+			<div class="tuning">
+				<!--lr-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Learning Rate:</div>
+						<div id="lr_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="0.001" max="0.15" value="0.1" class="slider" step="0.001" id="lr_range">
+					</div>
+				</div>
+				<!--lrUpdateRate-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Learning Rate Update Rate:</div>
+						<div id="lrUpdateRate_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="50" max="200" value="100" class="slider" step="10" id="lrUpdateRate_range">
+					</div>
+				</div>
+				<!--dim-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Dimension of the Word Vector:</div>
+						<div id="dim_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="1" max="200" value="100" class="slider" step="1" id="dim_range">
+					</div>
+				</div>
+				<!--ws-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Context Window:</div>
+						<div id="ws_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="1" max="15" value="64" class="slider" step="1" id="ws_range">
+					</div>
+				</div>
+				<!--epoch-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Epoches:</div>
+						<div id="epoch_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="1" max="40" value="5" class="slider" step="1" id="epoch_range">
+					</div>
+				</div>
+				<!--minCount-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Minimal Word Occurences:</div>
+						<div id="minCount_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="1" max="5" value="1" class="slider" step="1" id="minCount_range">
+					</div>
+				</div>
+				<!--neg-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Number of Negatives Sampled:</div>
+						<div id="neg_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="1" max="10" value="5" class="slider" step="1" id="neg_range">
+					</div>
+				</div>
+				<!--wordNgrams-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Word N-gram:</div>
+						<div id="wordNgrams_value" class="right main"></div>
+					</div>
+					<div>
+						<ul class="radio_list">
+							<li>
+								<input type="radio" id="wordNgrams_1" name="wordNgrams_select" checked="checked"/>
+								<label for="wordNgrams_1">1</label>
+							</li>
+							<li>
+								<input type="radio" id="wordNgrams_2" name="wordNgrams_select"/>
+								<label for="wordNgrams_2">2</label>
+							</li>
+						</ul>
+						<div class="clearfloat"></div>
+					</div>
+				</div>
+				<!--loss-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Loss Function:</div>
+						<div id="loss_value" class="right main"></div>
+					</div>
+					<div>
+						<ul class="radio_list">
+							<li>
+								<input type="radio" id="loss_ns" name="loss_select"/>
+								<label for="loss_ns">ns</label>
+							</li>
+							<li>
+								<input type="radio" id="loss_hs" name="loss_select"/>
+								<label for="loss_hs">hs</label>
+							</li>
+							<li>
+								<input type="radio" id="loss_softmax" name="loss_select" checked="checked"/>
+								<label for="loss_softmax">softmax</label>
+							</li>
+						</ul>
+						<div class="clearfloat"></div>
+					</div>
+				</div>
+				<!--minn-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Minimal Character N-gram:</div>
+						<div id="minn_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="0" max="10" value="0" class="slider" step="1" id="minn_range">
+					</div>
+				</div>
+				<!--maxx-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Maximal Character N-gram:</div>
+						<div id="maxn_value" class="right main"></div>
+					</div>
+					<div class="slidecontainer">
+						<input type="range" min="0" max="10" value="0" class="slider" step="1" id="maxn_range">
+					</div>
+				</div>
+				<!--t-->
+				<div class="hyperparameter">
+					<div class="slider_label">
+						<div class="left main">Sampling Threshold:</div>
+						<div id="t_value" class="right main"></div>
+					</div>
+					<div>
+						<ul class="radio_list">
+							<li>
+								<input type="radio" id="t_10e-6" name="t_select"/>
+								<label for="t_10e-6">0.00001</label>
+							</li>
+							<li>
+								<input type="radio" id="t_10e-5" name="t_select" checked="checked">
+								<label for="t_10e-5">0.0001</label>
+							</li>
+							<li>
+								<input type="radio" id="t_10e-4" name="t_select"/>
+								<label for="t_10e-4">0.001</label>
+							</li>
+						</ul>
+						<div class="clearfloat"></div>
+					</div>
+				</div>
+			</div>
+			<div class="button_panel">
+				<button id="start" class="button button_start button_control">
+				Start
+				</button>
+				<button id="stop" class="button button_stop button_control">
+					Stop
+				</button>
+			</div>
+		</div>
+		<div id="container_main" class="container_main_training main">
+			<div id="window" class="full_width window">
+				<div id="info" class="info full_width block"></div>
+				<div class="curve full_width block"></div>
+			</div>
+		</div>
+	</div>
+	<div class="training_row2">
+		<div class="left cm_container main">
+			<div id="cm" class="cm block"></div>
+		</div>
+		<div class="container_main_training main">
+			<div id="scatter" class="full_width tarining_scatter_container block">
+				<!--				<div id="scatter_label" class="float_left scatter_training"></div>-->
+				<!--				<div id="scatter_pred" class="float_right scatter_training"></div>-->
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--linechart-->
+<!--<script>
+    // 图表的宽度和高度
+    let parentWidth = $('#linechart_box').width();
+
+    const width = parentWidth;
+    const height = width / 2;
+    const range = 15;
+
+    // 预留给轴线的距离
+    const padding = {
+        top: 20,
+        right: 20,
+        bottom: 40,
+        left: 40
+    };
+
+    let data = [];
+    let xs = d3.range(data.length);
+    let dataset = d3.range(data.length).map(function(d) {
+        return [d, data[d]];
+    });
+
+    let xScale = d3.scaleLinear()
+        .domain([0, range-1])
+        .range([0, width - padding.left - padding.right]);
+
+    let yScale = d3.scaleLinear()
+        .domain([0, 1])
+        .range([height - padding.top - padding.bottom, 0]);
+
+    let svg = d3.select(".linechart")
+        .append('svg')
+        .attr('width', width + 'px')
+        .attr('height', height + 'px')
+        .call(auto_resize);
+
+    let xAxis = d3.axisBottom()
+        .scale(xScale);
+
+    let yAxis = d3.axisLeft()
+        .scale(yScale);
+
+    svg.append('g')
+        .attr('class', 'axis')
+        .attr('transform', 'translate(' + padding.left + ',' + (height - padding.bottom) + ')')
+        .call(xAxis);
+
+    svg.append('g')
+        .attr('class', 'axis')
+        .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+        .call(yAxis);
+
+    function appendData(value, chart) {
+        if (data.length === range)
+            data.shift();
+        data.push(value);
+        dataset = d3.range(data.length).map(function(d) {
+            return [d, data[d]];
+        });
+
+        /*var min = d3.min(dataset, function(d) {
+            return d[1];
+        });
+        var max = d3.max(dataset, function(d) {
+            return d[1];
+        });*/
+
+        svg.selectAll("." + chart).remove();
+
+        let linePath = d3.line()
+            .x(function(d) {
+                return xScale(d[0]);
+            })
+            .y(function(d) {
+                return yScale(d[1]);
+            })
+            .curve(d3.curveCardinal);
+
+        let areaPath = d3.area()
+            .x(function(d) {
+                return xScale(d[0]);
+            })
+            .y0(height-padding.bottom-padding.top)
+            .y1(function(d) {
+                return yScale(d[1]);
+            })
+            .curve(d3.curveCardinal);
+
+        svg.append('g')
+            .append('path')
+            .attr('class', 'line ' + chart)
+            .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+            .attr('d', linePath(dataset))
+            .attr('fill', 'none')
+            .attr('stroke-width', 2)
+            .attr('stroke', 'green');
+
+        svg.append('g')
+            .append('path')
+            .attr('class', 'area ' + chart)
+            .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+            .attr('d', areaPath(dataset))
+            .attr('fill', 'none')
+            .attr('stroke-width', 2)
+            .attr('stroke', 'green');
+
+        /*svg.append('g')
+            .selectAll('circle')
+            .data(dataset)
+            .enter()
+            .append('circle')
+            .attr('r', 3)
+            .attr('transform', function(d) {
+                return 'translate(' + (xScale(d[0]) + padding.left) + ',' + (yScale(d[1]) + padding.top) + ')'
+            })
+            .attr('class', 'dot ' + chart)*/
+    }
+
+    // let chart = d3.select("#accuracy_chart");
+    // d3.select(window).on("resize", function() {
+    //     var targetWidth = chart.node().getBoundingClientRect().width;
+    //     chart.attr("width", targetWidth);
+    //     chart.attr("height", targetWidth / 2);
+    // });
+
+        /*appendData(0.454, "chart1");
+        appendData(0.567, "chart1");
+        appendData(0.876, "chart1");
+        appendData(0.342, "chart1");
+        appendData(0.865, "chart1");
+        appendData(0.235, "chart1");
+        appendData(0.543, "chart1");*/
+
+    function auto_resize(svg) {
+        // get container + svg aspect ratio
+        var container = d3.select(svg.node().parentNode),
+            width = parseInt(svg.style("width")),
+            height = parseInt(svg.style("height")),
+            aspect = width / height;
+
+        // add viewBox and preserveAspectRatio properties,
+        // and call resize so that svg resizes on inital page load
+        svg.attr("viewBox", "0 0 " + width + " " + height)
+            .attr("perserveAspectRatio", "xMinYMid")
+            .call(resize);
+
+        // to register multiple listeners for same event type,
+        // you need to add namespace, i.e., 'click.foo'
+        // necessary if you call invoke this function for multiple svgs
+        // api docs: https://github.com/mbostock/d3/wiki/Selections#on
+        d3.select(window).on("resize." + container.attr("id"), resize);
+
+        // get width of container and resize svg to fit it
+        function resize() {
+            var targetWidth = parseInt(container.style("width"));
+            svg.attr("width", targetWidth);
+            svg.attr("height", Math.round(targetWidth / aspect));
+        }
+    }
+</script>-->
+<script>
+	//Push-up
+	var source = new EventSource("{{ url_for('sse.stream') }}");
+	source.addEventListener('greeting', function(event) {
+		document.getElementById("info").innerHTML += event.data;
+		JSON.parse(event.data, function(k, v) {
+			if (k === 'message') {
+				JSON.parse(v, function (k2, v2) {
+					if (k2 === "cm") {
+						// document.getElementById("TestDIV").innerHTML += "<br>k: " + k + " v: " + v;
+						let cm = JSON.parse(v2);
+						console.log(cm);
+						plot_cm(cm);
+					} else if (k2 === "scatter") {
+						plot_scatter();
+					}
+					return 0;
+				});
+			}
+			return 0;
+		});
+	}, false);
+
+	source.addEventListener('error', function(event) {
+		alert("Failed to communicate with the server");
+	}, false);
+</script>
+<script>
+	let group_no = 2;
+	let round = 1;
+
+	document.getElementById("id").innerHTML = "No. {{id}}";
+
+	hyperparameters = ['lr', 'lrUpdateRate', 'dim', 'ws', 'epoch', 'minCount', 'neg', 'wordNgrams', 'loss', 'minn', 'maxn', 't'];
+	for (let hp of hyperparameters) {
+		let range = document.getElementById(hp + "_range");
+		let value = document.getElementById(hp + "_value");
+		if (range != null) {
+			value.innerHTML = range.value;
+			range.oninput = function() {
+				value.innerHTML = this.value;
+			}
+		}
+	}
+</script>
+<script>
+	$(function() {
+		$("#start").bind('click', function() {
+			$.getJSON('/start', function() {
+
+			});
+			return false;
+		});
+	});
+
+	$(function() {
+		$("#start").click(function() {
+			let conf = {};
+
+			for (let hp of hyperparameters) {
+				const target_text = document.getElementById(hp + "_range");
+				const target_radios = document.getElementsByName(hp + "_select");
+				if (target_text != null) {
+					conf[hp] = parseFloat(target_text.value);
+				} else {
+					let radio_value = "";
+					for (var i = 0, length = target_radios.length; i < length; i++) {
+						if (target_radios[i].checked) {
+							radio_value = target_radios[i].value;
+							break;
+						}
+					}
+				}
+			}
+
+			$.post({url: "/start", data: JSON.stringify({group: group_no, training_round: round, kwargs: conf}), success: function() {}});
+			return false;
+		});
+	});
+
+	$(function() {
+		$("#stop").bind('click', function() {
+			$.getJSON('/stop', function() {
+
+			});
+			return false;
+		});
+	});
+</script>
+<script>
+	/*const zValues = [
+			[66, 416, 309, 116, 34, 33, 15, 7, 4, 0],
+			[21, 253, 378, 197, 74, 40, 22, 13, 2, 0],
+			[12, 165, 349, 269, 92, 58, 35, 16, 3, 1],
+			[0, 80, 289, 312, 142, 94, 52, 25, 6, 0],
+			[1, 32, 171, 276, 193, 168, 99, 44, 16, 0],
+			[0, 8, 93, 200, 194, 192, 189, 102, 20, 2],
+			[0, 9, 40, 112, 130, 200, 266, 181, 57, 5],
+			[0, 3, 25, 73, 81, 140, 247, 275, 144, 12],
+			[0, 4, 23, 59, 56, 127, 182, 287, 242, 20],
+			[1, 12, 19, 50, 58, 82, 159, 247, 311, 61]
+		];*/
+
+	function plot_cm(zMatrix) {
+		const range = (start, end, length = end - start) => Array.from({ length }, (_, i) => start + i);
+
+		const xValues = ['1 star', '2 stars', '3 stars', '4 stars', '5 stars', '6 stars', '7 stars', '8 stars', '9 stars', '10 stars'];
+		const yValues = ['1 star', '2 stars', '3 stars', '4 stars', '5 stars', '6 stars', '7 stars', '8 stars', '9 stars', '10 stars'];
+		const zValues = zMatrix;
+		const maxRow = zValues.map(function(row){ return Math.max.apply(Math, row); });
+		const max_zValue = Math.max.apply(null, maxRow);
+
+		var data_cm = [
+			{
+				x: xValues,
+				y: yValues,
+				z: zValues,
+				colorscale: [['0.0', '#FBF8F5'],['0.1', '#F9F1EC'],['0.2', '#EED4CD'],['0.3', '#E4B8B8'],['0.4', '#D69CA8'],['0.5', '#C5849D'],['0.6', '#A7658E'],['0.7', '#8C5181'],['0.8', '#6C3F70'],['0.9', '#4C2E5A'], ['1.0', '#2D1E3E']],
+				reversescale: false,
+				type: 'heatmap'
+			}
+		];
+
+		var layout_cm = {
+			paper_bgcolor: 'transparent',
+			plot_bgcolor: 'transparent',
+			title: '',
+			annotations: [],
+			xaxis: {
+				ticks: '',
+				// ticksuffix: ' ',
+				side: 'top',
+				fixedrange: true
+			},
+			yaxis: {
+				ticks: '',
+				ticksuffix: ' ',
+				autosize: false,
+				autorange: 'reversed',
+				fixedrange: true
+			},
+			hovermode: false,
+			autosize: true,
+			margin: {
+				l: 60,
+				r: 20,
+				b: 20,
+				t: 70,
+				// pad: 50
+			}
+		};
+
+		for ( let i = 0; i < yValues.length; i++ ) {
+			for ( let j = 0; j < xValues.length; j++ ) {
+				const currentValue = zValues[i][j];
+				const percentile = currentValue / max_zValue;
+				let textColor = '';
+				if (percentile > 0.35) {
+					textColor = 'white';
+				} else {
+					textColor = 'black';
+				}
+				var result = {
+					xref: 'x1',
+					yref: 'y1',
+					x: xValues[j],
+					y: yValues[i],
+					text: zValues[i][j],
+					font: {
+						// family: 'Arial',
+						size: 12,
+						color: textColor
+					},
+					showarrow: false,
+				};
+				layout_cm.annotations.push(result);
+			}
+		}
+
+		Plotly.newPlot('cm', data_cm, layout_cm);
+	}
+</script>
+<!--<script type="text/javascript" src='{{ url_for("static", filename="scripts/scatter2.js")}}'></script>-->
+<script>
+	const ACC = 800;
+	const split = 800;
+
+	function linspace(start, stop, step) {
+		let ret = [];
+		let i = start;
+		while (Math.round(i * ACC) <= Math.round(stop * ACC)) {
+			ret.push(i);
+			i += step;
+		}
+		// console.log(Math.round(i * ACC), Math.round(stop * ACC));
+		return ret;
+	}
+
+	function contour_trace(x, y, z, axis) {
+		return {
+			x: x,
+			y: y,
+			z: z,
+			connectgaps: true,
+			// opacity: 0.9,
+			type: 'contour',
+			line:{
+				smoothing: 0.7
+			},
+			// zsmooth: 'fast',
+			xaxis: 'x' + axis,
+			yaxis: 'y' + axis,
+			colorscale: [
+				['0.0', '#8A0002'], ['0.05', '#A50026'], ['0.15', '#DC3A2B'], ['0.25', '#F67E4B'],
+				['0.35', '#FDC272'], ['0.45', '#FEEFA5'], ['0.55', '#E3F399'], ['0.65', '#B1DD71'],
+				['0.75', '#6DC063'], ['0.85', '#219B51'], ['0.95', '#006837'], ['1.0', '#085a2e']
+			],
+			contours: {
+				// coloring: 'heatmap',
+			},
+			hoverinfo: 'skip'
+		};
+	}
+
+	function point_trace(x, y, text, axis, color) {
+		return {
+			x: x,
+			y: y,
+			text: text,
+			mode: 'markers',
+			hoverinfo: 'text',
+			type: 'scattergl',
+			name: 'text',
+			opacity: 0.9,
+			xaxis: 'x' + axis,
+			yaxis: 'y' + axis,
+			marker: {
+				sizemin: 30,
+				sizemax: 30,
+				size: 5,
+				line: {
+					width: 0.4,
+					color: '#777777'
+				},
+				color: color
+			},
+			showlegend: false
+		};
+	}
+
+	function plot_scatter() {
+		let colorList = ['#A50026', '#DC3A2B', '#F67E4B', '#FDC272', '#FEEFA5', '#E3F399', '#B1DD71', '#6DC063', '#219B51', '#006837'];
+		let scatter_data = [];
+		let point_xValues = [];
+		let point_yValues = [];
+		let point_labels = [];
+		let point_preds = [];
+		let point_color_label = [];
+		let point_color_pred = [];
+		let contour_xValues = [];
+		let contour_yValues = [];
+		let contour_labels = [];
+		let contour_preds = [];
+		let z_n_labels = [];
+		let z_n_preds = [];
+
+		let x_max = Number.MIN_VALUE;
+		let x_min = Number.MAX_VALUE;
+		let y_max = Number.MIN_VALUE;
+		let y_min = Number.MAX_VALUE;
+
+		let x_start = 0;
+		let x_end = 0;
+		let y_start = 0;
+		let y_end = 0;
+
+		const config = {
+			scrollZoom: true
+		};
+
+		let layout2 = {
+			title: '',
+			dragmode: "pan",
+			hovermode: "closest",
+			xaxis: {
+				domain: [0, 0.49],
+				// anchor: 'y1',
+				ticks: '',
+				showticklabels: false,
+				autorange: true
+			},
+			yaxis: {
+				domain: [0, 1],
+				// anchor: 'x1'
+				ticks: '',
+				showticklabels: false,
+				autorange: true
+			},
+			xaxis2: {
+				domain: [0.51, 1],
+				matches: 'x',
+				// anchor: 'y2',
+				ticks: '',
+				showticklabels: false,
+				autorange: true
+			},
+			yaxis2: {
+				domain: [0, 1],
+				matches: 'y',
+				// anchor: 'x1',
+				ticks: '',
+				showticklabels: false,
+				autorange: true
+			},
+			// grid: {rows: 1, columns: 2, pattern: 'independent'},
+			paper_bgcolor: 'transparent',
+			plot_bgcolor: 'transparent',
+			margin: {
+				l: 20,
+				r: 20,
+				b: 20,
+				t: 20,
+				// pad: 50
+			}
+		};
+
+		let directory = "static/out/{{id}}/" + round.toString();
+
+		d3.csv(directory + '/scatter.csv').then(function (data) {
+			data.forEach(function (d) {
+				point_xValues.push(parseFloat(d.x));
+				point_yValues.push(parseFloat(d.y));
+				point_labels.push(d.label);
+				point_preds.push(d.pred);
+				point_color_label.push(colorList[parseInt(d.label) - 1]);
+				point_color_pred.push(colorList[parseInt(d.pred) - 1]);
+				x_max = Math.max(x_max, d.x);
+				x_min = Math.min(x_min, d.x);
+				y_max = Math.max(y_max, d.y);
+				y_min = Math.min(y_min, d.y);
+			});
+			x_start = Math.round(x_min * ACC) / ACC;
+			x_end = Math.round(x_max * ACC) / ACC;
+			contour_xValues = linspace(x_start, x_end, 1 / split);
+
+			y_start = Math.round(y_min * ACC) / ACC;
+			y_end = Math.round(y_max * ACC) / ACC;
+			contour_yValues = linspace(y_start, y_end, 1 / split);
+
+			let x_length = contour_xValues.length;
+			let y_length = contour_yValues.length;
+
+			contour_labels = new Array(y_length);
+			z_n_labels = new Array(y_length);
+			contour_preds = new Array(y_length);
+			z_n_preds = new Array(y_length);
+			for (let i = 0; i < y_length; i++) {
+				contour_labels[i] = new Array(x_length);
+				z_n_labels[i] = new Array(x_length);
+				contour_preds[i] = new Array(x_length);
+				z_n_preds[i] = new Array(x_length);
+				for (let j = 0; j < x_length; j++) {
+					contour_labels[i][j] = null;
+					z_n_labels[i][j] = 0;
+					contour_preds[i][j] = null;
+					z_n_preds[i][j] = 0;
+				}
+			}
+			data.forEach(function (d) {
+				x_coor = Math.round((parseFloat(d.x) - x_start) * split);
+				y_coor = Math.round((parseFloat(d.y) - y_start) * split);
+				if (contour_labels[y_coor][x_coor] != null) {
+					contour_labels[y_coor][x_coor] = parseInt(d.label);
+					z_n_labels[y_coor][x_coor]++;
+				} else {
+					contour_labels[y_coor][x_coor] = (contour_labels[y_coor][x_coor] * z_n_labels[y_coor][x_coor] + parseInt(d.label)) / (z_n_labels[y_coor][x_coor] + 1);
+					z_n_labels[y_coor][x_coor]++;
+				}
+				if (contour_preds[y_coor][x_coor] != null) {
+					contour_preds[y_coor][x_coor] = parseInt(d.pred);
+					z_n_preds[y_coor][x_coor]++;
+				} else {
+					contour_preds[y_coor][x_coor] = (contour_preds[y_coor][x_coor] * z_n_preds[y_coor][x_coor] + parseInt(d.pred)) / (z_n_preds[y_coor][x_coor] + 1);
+					z_n_preds[y_coor][x_coor]++;
+				}
+			});
+		}).then(function () {
+			scatter_data.push(contour_trace(contour_xValues, contour_yValues, contour_preds, ''));
+			scatter_data.push(point_trace(point_xValues, point_yValues, point_preds, '', point_color_pred));
+			// scatter_data.push(contour_trace(contour_xValues, contour_yValues, contour_labels, '2'));
+			scatter_data.push(point_trace(point_xValues, point_yValues, point_labels, '2', point_color_label));
+
+			Plotly.newPlot('scatter', scatter_data, layout2, config);
+
+			let myPlot = document.getElementById('scatter');
+
+			myPlot.on('plotly_hover', function (eventdata) {
+				// let points = eventdata.points[0], pointNum = points.pointNumber;
+				let hover_x = eventdata.xvals[0], hover_y = eventdata.yvals[0];
+				// console.log(pointNum);
+				Plotly.Fx.hover('scatter',
+						[
+							{curveNumber: 1, xval: hover_x, yval: hover_y},
+							{curveNumber: 2, xval: hover_x, yval: hover_y}
+						],
+						['xy', 'x2y2']
+				);
+			});
+		});
+	}
+</script>
+</body>
+</html>
