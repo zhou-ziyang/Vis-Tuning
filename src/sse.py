@@ -2,6 +2,7 @@ import multiprocessing
 import os
 
 import psutil
+import redis
 from flask import Flask, render_template, request
 from flask_sse import sse
 
@@ -20,6 +21,7 @@ app.pid = None
 
 @app.route('/')
 def index():
+    redis.Redis(host='localhost', port=6379, decode_responses=True)
     return render_template("index.html")
 
 
