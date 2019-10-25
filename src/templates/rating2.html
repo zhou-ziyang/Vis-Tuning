@@ -29,7 +29,7 @@
             <span id="9star_pred" class="star fa fa-star"></span>
             <span id="10star_pred" class="star fa fa-star"></span>
         </div>
-        <div class="question">Do you want to change your rate?</div>
+        <div class="question">Have you changed your mind?</div>
         <div class="stars">
             <span id="1star" class="star fa fa-star"></span>
             <span id="2star" class="star fa fa-star"></span>
@@ -112,8 +112,8 @@
     // let sen = "bad acing bad writing just bad. this movie is long, boring, pointless, i could go on. i would rather watch bees mating than this movie. at least there would be some emotion. And don't even get me started on josh hartnett. yuck. not even his uni brow could detract from his bad acting. the only \"good\" (im using the word very loosely) thing about this movie was when josh hartnett said the line \"i found your powder case\" like 3 times in a very deep cheesy voice that was so bad i just had to laugh. i mean, come on is Hollywood really this desperate that they have to make a movie about.... i don't even no what it was about thats how sh**y it was. if you want to see something exciting, i suggest you watch paint dry rather than endure this \"movie\" (again i use this term loosely).";
 
 
-    let rating = 0;
     let review_id = 0;
+    let rating = ratings[review_id];
     let sentences = [
         "The whole of Spectre looks tired<BREAK>. From its ageing star Daniel Craig<BREAK>, who famously remarked that he would rather slash his wrists than make another Bond movie to the script<BREAK>, direction and stunts<BREAK>. <NEWLINE> It appears that Craig's apathy has infected everyone who worked on the production<BREAK>, that no one made an effort<BREAK>, that they were all just glad to be finished regardless of the quality of the final product<BREAK>. <NEWLINE> Is it a sign of laziness that the film cast Lea Seydoux from Mission Impossible Ghost Protocol<BREAK>? possibly<BREAK>. <NEWLINE> Does SPECTRE contain the most tedious uninvolving car chase ever filmed<BREAK>? undoubtedly<BREAK>. <NEWLINE> Towards the end of the movie<BREAK>, where Bond dispatches enemy guards who stand around waiting to be killed<BREAK>, it is almost impossible to suppress a groan of horror that the Bond franchise has sunk to such depths<BREAK>. <NEWLINE> Daniel Craihg says that he would rather slash his wrists than star in another Bond movie<BREAK>? I'd rather slash my wrists than watch one<BREAK>.<BREAK>",
         "I'm a huge fan of the Piates of the Caribbean movies<BREAK>, but I was a little nervous about seeing this third installment because of the not as good other third installments<BREAK>. I still had pretty high expectations<BREAK>, and I was not disappointed<BREAK>! The plot was brilliant and very creative<BREAK>, with plenty of exciting twists and turns<BREAK>. As always<BREAK>, the acting was incredible<BREAK>. Johnny Depp always does an amazing job<BREAK>, but his Captain Jack Sparrow is probably one of his bests works yet<BREAK>! I still don't see how anyone could be so brilliant<BREAK>.<BREAK>.<BREAK>. Anyways<BREAK>, overall<BREAK>, just a really great film<BREAK>. Better than the other Pirate films in the trilogy (<BREAK>and you know how good those are<BREAK>!<BREAK>) See it<BREAK>, you won't be disappointed<BREAK>!<BREAK>",
@@ -166,7 +166,7 @@
     }
 
     function clear() {
-        rating = 0;
+        rating = ratings[review_id];
         for (let j = 1; j <= 10; j++) {
             document.getElementById(j + "star").className = "star fa fa-star";
         }
@@ -197,8 +197,8 @@
     function next_sentence() {
         ratings[review_id] = rating;
         if (review_id < scale - 1) {
-            clear();
             review_id++;
+            clear();
             show_pred(review_id);
             show_guess(review_id);
             addSentence(sentences[review_id]);

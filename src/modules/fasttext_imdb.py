@@ -64,7 +64,7 @@ class FasttextImdb:
         self.rf = None
         self.maxlen = 350
 
-    def train(self, training_round, observer, kwargs):
+    def train(self, training_round, observer, kwargs=None):
         self.training_round = training_round
         self.observer = observer
         self.kwargs = kwargs
@@ -179,9 +179,13 @@ class FasttextImdb:
 
         Event('append', str({"evaluating": "Evaluating..."}))
 
-        Event('append', str({"evaluating": "R2-Score: " + str(r2_score(truths, predictions))}))
-        Event('append', str({"evaluating": "t-statistic: " + str(stats.ttest_rel(truths, predictions).statistic)}))
-        Event('append', str({"evaluating": "p-value: " + str(stats.ttest_rel(truths, predictions).pvalue)}))
+        r2 = str(r2_score(truths, predictions))
+        Event('append', str({"evaluating": "R2-Score: " + r2}))
+        file_log = codecs.open(self.directory + "/log.txt", "w")
+        file_log.write(str(time.time()) + " " + r2)
+
+        # Event('append', str({"evaluating": "t-statistic: " + str(stats.ttest_rel(truths, predictions).statistic)}))
+        # Event('append', str({"evaluating": "p-value: " + str(stats.ttest_rel(truths, predictions).pvalue)}))
 
         Event('append', str({"evaluating": "Plotting confusion matrix..."}))
         self.plot_cm(truths, predictions)

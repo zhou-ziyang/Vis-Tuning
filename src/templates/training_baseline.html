@@ -14,10 +14,11 @@
 	<div class="title_bar">
 		<div class="title_logo">Visual Fasttext</div>
 		<div class="title_id" id="id">ID: </div>
-		<div class="title_ready_btn" onclick="rating()">Ready</div>
+		<div class="title_ready_btn" id="evaluate">Evaluate</div>
+		<div class="title_ready_btn invisible" id="ready" onclick="rating()">Ready</div>
 	</div>
-	<div class="training_row_alone">
-		<div id="left_sidebar" class="left sidebar_training main">
+	<div class="training_row_alone flex_row">
+		<div id="left_sidebar" class="sidebar_training">
 			<div class="tuning">
 				<!--lr-->
 				<div class="hyperparameter">
@@ -183,26 +184,27 @@
 				<button id="stop" class="button button_stop button_control">Stop</button>
 			</div>
 		</div>
-		<div id="container_main" class="container_main_training_baseline main">
-			<div class="right cm_container main">
+		<div id="container_main_left_baseline" class="container_main_left_baseline">
+			<div id="terminal" class="full_width training_scatter_container_baseline terminal">
+				<div id="terminal0">
+					<a class="terminal_header">[visual-fasttext]</a>
+				</div>
+				<div id="terminal1"></div>
+				<div id="terminal2"></div>
+				<div id="terminal3"></div>
+				<div id="terminal_end"></div>
+			</div>
+		</div>
+		<div class="cm_container_baseline">
+			<div id="container_main_training_baseline" class="main container_main_training_baseline">
 				<div id="cm" class="center"></div>
-<!--				<div class="loader"></div>-->
 				<div id="cm_loading" class="center">
 					<div id="loader" class="invisible"></div>
 				</div>
 			</div>
-			<div class="container_main_left_baseline main">
-				<div id="terminal" class="full_width tarining_scatter_container terminal">
-					<div id="terminal0">
-						<a class="terminal_header">[visual-fasttext]</a>
-					</div>
-					<div id="terminal1"></div>
-					<div id="terminal2"></div>
-					<div id="terminal3"></div>
-					<div id="terminal_end"></div>
-				</div>
-			</div>
 		</div>
+<!--		<div id="container_main" class="container_main_training_baseline">-->
+<!--		</div>-->
 	</div>
 </div>
 <script>
@@ -363,6 +365,9 @@
 	// 	});
 	// });
 
+	let group_no = 1;
+	let round = 1;
+
 	$(function() {
 		$("#start").click(function() {
 
@@ -391,10 +396,33 @@
 				}
 			}
 
-			let group_no = 1;
-			let round = 1;
-
 			$.post({url: "/start", data: JSON.stringify({subj_id: "{{id}}", group: group_no, training_round: round, kwargs: conf}), success: function() {}});
+			return false;
+		});
+	});
+
+	$(function() {
+		$("#evaluate").bind('click', function() {
+			$.getJSON('/start', function() {
+
+			});
+			return false;
+		});
+	});
+
+	$(function() {
+		$("#evaluate").click(function() {
+
+			document.getElementById("evaluate").className = "title_ready_btn invisible";
+			document.getElementById("ready").className = "title_ready_btn";
+			document.getElementById("left_sidebar").className = "sidebar_training invisible";
+			// document.getElementById("container_main_left_baseline").className = "container_main_left_baseline invisible";
+			// document.getElementById("container_main_training_baseline").className = "container_main_left_baseline invisible";
+
+			document.getElementById("loader").className = "loader";
+			document.getElementById('cm').innerHTML = "";
+
+			$.post({url: "/start", data: JSON.stringify({subj_id: "{{id}}", group: group_no, training_round: round, kwargs: {}}), success: function() {}});
 			return false;
 		});
 	});

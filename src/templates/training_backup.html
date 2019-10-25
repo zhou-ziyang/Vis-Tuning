@@ -14,8 +14,7 @@
 	<div class="title_bar">
 		<div class="title_logo">Visual Fasttext</div>
 		<div class="title_id" id="id">ID: </div>
-		<div class="title_ready_btn" id="evaluate">Evaluate</div>
-		<div class="title_ready_btn invisible" id="ready" onclick="rating()">Ready</div>
+		<div class="title_ready_btn" onclick="rating()">Ready</div>
 	</div>
 	<div class="training_row_alone flex_row">
 		<div id="left_sidebar" class="sidebar_training">
@@ -185,20 +184,16 @@
 			</div>
 		</div>
 		<div id="container_main_training" class="container_main_training">
-			<div id="info" class="training_row block terminal_small"></div>
+			<div id="info" class="training_row block"></div>
 			<div class="training_row2">
-				<div class="left training_scatter_container main">
-					<div id="scatter" class="scatter block"></div>
-					<div id="scatter_loading" class="center">
-						<div id="scatter_loader" class="invisible"></div>
-					</div>
-				</div>
-				<div class="right cm_container main">
+				<div class="left cm_container main">
 					<div id="cm" class="cm block"></div>
-					<div id="cm_loading" class="center">
-						<div id="cm_loader" class="invisible"></div>
-					</div>
 				</div>
+				<div class="right cm_container main block"></div>
+				<div class="right cm_container main"></div>
+			</div>
+			<div class="training_row2 block">
+				<div id="scatter" class="full_width tarining_scatter_container block"></div>
 			</div>
 			<div id="hoverinfo" class="training_row2 block hoverinfo">
 				<div id="comparison" class="comparison"></div>
@@ -240,7 +235,7 @@
 						cm = JSON.parse(v2);
 						// console.log(cm);
 						plot_cm(cm);
-						document.getElementById("cm_loader").className = "invisible";
+						// document.getElementById("loader").className = "invisible";
 					} else if (k2 === "loading_data") {
 						document.getElementById("info").innerHTML = v2;
 					} else if (k2 === "training_progress") {
@@ -249,7 +244,6 @@
 						document.getElementById("info").innerHTML += v2 + "<br />";
 					} else if (k2 === "scatter") {
 						plot_scatter();
-						document.getElementById("scatter_loader").className = "invisible";
 					}
 					return 0;
 				});
@@ -287,12 +281,6 @@
 
 	$(function() {
 		$("#start").click(function() {
-
-			document.getElementById("cm_loader").className = "loader";
-			document.getElementById("scatter_loader").className = "loader";
-			document.getElementById('cm').innerHTML = "";
-			document.getElementById('scatter').innerHTML = "";
-
 			for (let hp of hyperparameters) {
 				const target_slider = document.getElementById(hp + "_range");
 				const target_radios = document.getElementsByName(hp + "_select");
@@ -312,35 +300,6 @@
 			}
 
 			$.post({url: "/start", data: JSON.stringify({subj_id: "{{id}}", group: group_no, training_round: round, kwargs: conf}), success: function() {}});
-			return false;
-		});
-	});
-
-	$(function() {
-		$("#evaluate").bind('click', function() {
-			$.getJSON('/start', function() {
-
-			});
-			return false;
-		});
-	});
-
-	$(function() {
-		$("#evaluate").click(function() {
-
-			document.getElementById("evaluate").className = "title_ready_btn invisible";
-			document.getElementById("ready").className = "title_ready_btn";
-			document.getElementById("left_sidebar").className = "sidebar_training invisible";
-			document.getElementById("info").className = "training_row block terminal_small invisible";
-
-			document.getElementById("cm_loader").className = "loader";
-			document.getElementById("scatter_loader").className = "loader";
-			document.getElementById('cm').innerHTML = "";
-			document.getElementById('scatter').innerHTML = "";
-			document.getElementById('comparison').innerHTML = "";
-			document.getElementById('review_box').innerHTML = "";
-
-			$.post({url: "/start", data: JSON.stringify({subj_id: "{{id}}", group: group_no, training_round: round, kwargs: {}}), success: function() {}});
 			return false;
 		});
 	});
@@ -384,8 +343,7 @@
 				z: zValues,
 				colorscale: [['0.0', '#FBF8F5'],['0.1', '#F9F1EC'],['0.2', '#EED4CD'],['0.3', '#E4B8B8'],['0.4', '#D69CA8'],['0.5', '#C5849D'],['0.6', '#A7658E'],['0.7', '#8C5181'],['0.8', '#6C3F70'],['0.9', '#4C2E5A'], ['1.0', '#2D1E3E']],
 				reversescale: false,
-				type: 'heatmap',
-				showscale: false
+				type: 'heatmap'
 			}
 		];
 
@@ -395,14 +353,12 @@
 			title: '',
 			annotations: [],
 			xaxis: {
-				title: "Prediction",
 				ticks: '',
 				// ticksuffix: ' ',
 				side: 'top',
 				fixedrange: true
 			},
 			yaxis: {
-				title: "Truth",
 				ticks: '',
 				ticksuffix: ' ',
 				autosize: false,
@@ -412,10 +368,10 @@
 			hovermode: false,
 			autosize: true,
 			margin: {
-				l: 70,
-				r: 25,
-				b: 25,
-				t: 80,
+				l: 60,
+				r: 20,
+				b: 20,
+				t: 70,
 				// pad: 50
 			}
 		};
@@ -822,7 +778,7 @@
 			const target_value = document.getElementById(hp + "_value");
 			if (target_slider != null) {
 				// console.log(rec_id);
-				target_slider.value = parseFloat(config[rec_id]['hyper'][hp]);
+				target_slider.value = config[rec_id]['hyper'][hp];
 				target_value.innerHTML = target_slider.value;
 			} else {
 				const target_radios = document.getElementsByName(hp + "_select");
@@ -857,11 +813,6 @@
 			resolve('start');
 		  });
 		}
-	}
-
-	function rating() {
-		window.open("/rating?id={{ id }}");
-		return false;
 	}
 </script>
 </body>
