@@ -51,7 +51,7 @@ class FasttextImdb:
         self.sbj_id = sbj_id
         self.observer = None
         self.group = group
-        self.read_path = "static/pipe/fasttext.pipe"
+        self.read_path = "pipe/fasttext.pipe"
         self.update = {}
         self.training_round = 0
         self.kwargs = {}

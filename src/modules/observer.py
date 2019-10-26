@@ -1,7 +1,7 @@
 import os
 import time
 
-from modules.event import Event
+# from modules.event import Event
 
 
 class Observer:

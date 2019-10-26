@@ -7,7 +7,7 @@ from flask import Flask, render_template, request
 from flask_sse import sse
 
 from modules.training import Training
-from training.observer import Observer
+from modules.observer import Observer
 
 app = Flask(__name__)
 app.config["REDIS_URL"] = "redis://localhost"

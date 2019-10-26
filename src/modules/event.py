@@ -1,4 +1,4 @@
-from training.observer import Observer
+from modules.observer import Observer
 
 
 class Event:
